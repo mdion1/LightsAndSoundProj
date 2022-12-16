@@ -1,0 +1,4 @@
+[submodule "NoteDector_PCBA"]
+	path = NoteDector_PCBA
+	url = https://github.com/mdion1/NoteDector_PCBA.git
+	branch = master
