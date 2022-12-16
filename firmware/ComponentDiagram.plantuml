@@ -1,0 +1,81 @@
+@startuml
+
+allow_mixing
+title Squidstat Firmware module overview
+'skinparam linetype ortho
+
+
+object TaskManager
+object SignalAnalysis
+object SignalSampling
+object SamplingParams
+object LEDLogic
+object Sleep
+
+'High-level heirarchy
+TaskManager --> SignalSampling
+TaskManager --> SignalAnalysis
+TaskManager --> LEDLogic
+TaskManager --> Sleep
+SignalSampling --> HAL
+SignalSampling --> SamplingParams
+SignalAnalysis --> HAL
+SignalAnalysis --> SamplingParams
+LEDLogic --> HAL
+Sleep --> HAL
+
+'TaskManager
+TaskManager : stateMachine
+TaskManager : test = "asdf1234"
+TaskManager : mynum = 123
+note bottom of TaskManager
+        Text of note
+        on two lines
+end note
+note right of TaskManager
+        Text of note
+        on two lines
+end note
+
+'SignalSampling
+SignalSampling : stateMachine
+SignalSampling : sampleBuf
+
+'Signal Analysis
+SignalAnalysis : stateMachine
+class movingAvgBuf
+SignalAnalysis --> movingAvgBuf
+
+'SamplingParams
+SamplingParams : (hard-coded sampling parameters)
+SamplingParams : sinTable
+SamplingParams : cosTable
+note bottom of SamplingParams
+        Use configurator tool to
+        generate parameters
+end note
+
+
+'LEDLogic
+class HSLtoRGB
+class LinearRamp
+class RNG
+LEDLogic : stateMachine
+LEDLogic --> HSLtoRGB
+LEDLogic --> LinearRamp
+LEDLogic --> RNG
+
+'Sleep
+Sleep : stateMachine
+
+
+package "HAL" {
+        component DMA
+        component ADC
+        component Timers
+        component Interrupts
+        component hardwareMath
+}
+
+
+@enduml
