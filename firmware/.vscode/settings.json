@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "signalanalysis.h": "c",
+        "samplingparams.h": "c",
+        "hsltorgb.h": "c",
+        "ledmanager.h": "c"
+    }
+}
