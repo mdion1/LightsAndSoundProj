@@ -8,7 +8,7 @@
             "name": "Sampling width",
             "type": "python",
             "request": "launch",
-            "program": "Tools_samplingWidth.py",
+            "program": "main.py",
             "args":[
             
             ],
