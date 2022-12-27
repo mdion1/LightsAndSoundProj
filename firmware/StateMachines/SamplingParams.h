@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <stdbool.h>
 
 #define SAMPLE_BUF_SIZE 64      // number of ADC samples per buffer, in which 1 buffer contains >= 2pi rad worth of samples at the target detection frequency
 #define NUM_BUFS 8              // number of buffers used in the rolling average

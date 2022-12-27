@@ -12,22 +12,23 @@ typedef enum {
 // State machine owned by the main software thread
 static struct {
     SigSampState_t state;
-    int headIdx;
-    int tailIdx;
+    int headIdxCpy;             //buffer index of the next sample to be converted; copy of the volatile variable owned by the ISR, updated every task loop
+    int tailIdx;                //buffer index of the next sample to be processed; updated every task loop, set to the head index of the previous task loop
 }SM;
 
 // State machine owned by the ISR
 static volatile struct {
-    int x;
+    int headIdxVol;            //buffer index of the next sample to be converted; read-only except by the ISR callback
+    bool b_collision;          // set only by the ISR callback; cleared by the main thread
 }ISRvars;
 
 // Sample buffer
 static int16_t sampBuf[SAMPLE_BUF_SIZE];
-static int bufIdx = 0;
 
 /* Private function declarations */
 static void resetBuf();
 static void samplingTasks();
+static void ISRcallback();
 
 /* Public function definitions */
 
@@ -35,6 +36,20 @@ void SigSamp_init()
 {
     SM.state = IDLE;
     resetBuf();
+
+    //todo: register ISR callback
+}
+
+void SigSamp_start()
+{
+    HAL_ADCStartContinuous();
+    SM.state = SAMPLING;
+}
+
+void SigSamp_stop()
+{
+    HAL_ADCstop();
+    SM.state = IDLE;
 }
 
 SigSampEvents_t SigSamp_tasks()
@@ -51,7 +66,7 @@ SigSampEvents_t SigSamp_tasks()
         break;
         case SAMPLING:
             samplingTasks();
-            events.newSamples = SM.headIdx - SM.tailIdx;
+            events.newSamples = SM.headIdxCpy - SM.tailIdx;
             events.buf = &sampBuf[SM.tailIdx];
         break;
     }
@@ -62,25 +77,41 @@ SigSampEvents_t SigSamp_tasks()
 /* Private function definitions */
 static void resetBuf()
 {
-    SM.headIdx = SM.tailIdx = 0;
+    SM.headIdxCpy = SM.tailIdx = 0;
 
     //critical section ("di"/"ei"), reset volatile ISR vars
 }
 
 static void samplingTasks()
 {
-    // check HAL for new samples
-    // if DMA is available, implement ping-pong buffer
-    // if interrupt-driven, copy volatile variables that track new sample counts;
+    // Protected section: copy ISR-owned volatile variables
+    HAL_disableInt();
+    int headIdx_cpy = ISRvars.headIdxVol;
+    bool collisionFlag = ISRvars.b_collision;
+    HAL_enableInt();
 
-
-    SM.tailIdx = SM.headIdx;
-    SM.headIdx = /* get # of new samples */ 0;
+    if (collisionFlag)
+    {
+        //todo: handle collision
+        resetBuf();//??
+    }
+    else
+    {
+        SM.tailIdx = SM.headIdxCpy;
+        SM.headIdxCpy = headIdx_cpy;
+    }
 }
 
-/* ISR */
-void ISR()
+static void ISRcallback()
 {
-    //todo
-    ISRvars.x = 0;
+    // Push new sample to the buffer
+    sampBuf[ISRvars.headIdxVol] = HAL_getADCconv();
+
+    // Increment buf indx
+    ISRvars.headIdxVol = (ISRvars.headIdxVol >= SAMPLE_BUF_SIZE) ? 0 : (ISRvars.headIdxVol + 1);
+
+    // If sampling has overrun sample processing, set collision flag
+    ISRvars.b_collision |= (ISRvars.headIdxVol == SM.tailIdx);
+
+    //todo: account for collisions!
 }
