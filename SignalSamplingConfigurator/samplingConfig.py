@@ -100,8 +100,12 @@ class textFmt:
             postscale = max(1, math.floor(PIC18F_BASE_TIMER_FREQ / targetFSamp / PIC18F_TIMER_MAX_PERIOD / 2**log2Prescale))
             if postscale > PIC18F_TIMER_MAX_POSTSCALE:
                 log2Prescale += 1
-                if log2Prescale > 3:
+                if log2Prescale > 3:        # max prescaler is 2^3 = 8
                     raise ValueError("Sampling interval is too slow for the HF clock, use another clock source!")
+                    # Note/todo: the PIC18 timer sources are:
+                    #       HFINT = 1e6Hz
+                    #       MFINT = 31.25kHz or 500kHz (HFINT divided by 2 or 32)
+                    #       LFINT = 31kHz
                     break
                 continue
             else:
