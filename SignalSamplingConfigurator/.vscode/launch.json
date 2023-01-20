@@ -14,5 +14,25 @@
             ],
             "console": "integratedTerminal"
         },   
+        {
+            "name": "Sampling param configurator",
+            "type": "python",
+            "request": "launch",
+            "program": "samplingConfig.py",
+            "args":[
+            
+            ],
+            "console": "integratedTerminal"
+        },   
+        {
+            "name": "HSL to RGB test",
+            "type": "python",
+            "request": "launch",
+            "program": "HSLtoRGBtest/HSLtoRGB.py",
+            "args":[
+            
+            ],
+            "console": "integratedTerminal"
+        },   
     ]
 }

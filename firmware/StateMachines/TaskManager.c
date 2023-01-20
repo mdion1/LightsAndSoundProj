@@ -4,30 +4,91 @@
 #include "SignalSampling.h"
 #include "SignalAnalysis.h"
 
-
+typedef struct
+{
+    void (*p_taskFn)(void);
+    uint16_t interval;
+    uint16_t tPrev;
+}task_t;
 
 /* Private variable declarations */
+// State machine
+#define MAX_NUM_TASKS 8
+static struct
+{
+    task_t taskList[MAX_NUM_TASKS];
+    uint8_t taskListLen;
+}SM;
 
+// Task intervals
+#define SIG_SAMP_TASK_INT (4 * TSAMP_PERIOD)    // todo: convert clock ticks into systick intervals
+#define SIG_ANALYSIS_TASK_INT (4 * TSAMP_PERIOD)
+#define LED_MANAGER_TASK_INT 1000   // todo: dummy value
+#define SLEEP_TASK_INT 1000   // todo: dummy value
 
 /* Private function declarations */
-
+void registerTask(void (*p_taskFn)(void), uint16_t interval);   // intervals must be <= 32767
 
 /* Public function definitions */
 
 void TaskMgr_init(void)
 {
-    return;
+    /* Initialize all modules */
+    SigSamp_init();
+    SigAnalysis_init();
+    LEDMgr_init();
+    Sleep_init();
+    
+    /* Register tasks */
+    registerTask(&SigSamp_tasks, SIG_SAMP_TASK_INT);
+    registerTask(&SigAnalysis_tasks, SIG_ANALYSIS_TASK_INT);
+    registerTask(&LEDMgr_tasks, LED_MANAGER_TASK_INT);
+    registerTask(&Sleep_tasks, SLEEP_TASK_INT);
+    
+    Systick_start();
 }
 
 void TaskMgr_loopNoReturn(void)
 {
     while(1) {
-        SigSampEvents_t sigSamp_evt = SigSamp_tasks();
-        SigAnl_t sigAnl_evt = SigAnalysis_tasks(sigSamp_evt.newSamples, sigSamp_evt.buf);       // is there even a need for a "newData" flag?
-        LEDMgr_tasks(SigAnl_getSigStr());     //todo: SigAnl_getSigStr() should return a bool if it's a new value??? Or else the module's state machine doesn't need the b_isValid flag...
-        Sleep_tasks();
-        continue;
+        
+        uint16_t t_now = hal_Systick16();
+        
+        for (uint8_t i = 0; i < SM.taskListLen; i++)
+        {
+            task_t* task = &SM.taskList[i];
+            bool once = true;
+            while (t_now - task->tPrev >= task->interval)       //TODO: THIS BREAKS DUE TO WRAPAROUND
+            {
+                // only call the task once, even if several intervals have expired
+                if (once) {
+                    (*task->p_taskFn)();    //call registered task function
+                    once = false;
+                }
+                
+                /* Add interval to tPrev until tPrev + interval > t_now */
+                task->tPrev += task->interval;
+            }
+        }
     }
 }
 
 /* Private function definitions */
+// Params:  !!intervals must be <= 32767!!
+void registerTask(void (*p_taskFn)(void), uint16_t interval)
+{
+    /* Time interval math is done with unsigned 16-bit integers, so to avoid overflow/wraparound error
+     * the maximum interval must be < 2^15
+     */
+    if (interval > 32778) {
+        return;
+    }
+    
+    /* Guard against array overflow */
+    if (SM.taskListLen < MAX_NUM_TASKS)
+    {
+        SM.taskList[SM.taskListLen].p_taskFn = p_taskFn;
+        SM.taskList[SM.taskListLen].interval = interval;
+        SM.taskList[SM.taskListLen].tPrev = 0;
+    }
+}

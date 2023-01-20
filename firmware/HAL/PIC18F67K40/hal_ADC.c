@@ -1,5 +1,8 @@
 
-#ifdef __PIC18F67K50__
+#ifdef __PIC18F67K40__
+#include <xc.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 #include "../HAL.h"
 
@@ -65,18 +68,12 @@ void HAL_ADCInit_onInterval(uint8_t clkPrescaler, uint8_t channelSel)
     ADACT = 2;    //Timer2 postscaled
 
     // timer setup
+    T2CLKCONbits.CS = 2;   //F_osc     // 1 = F_osc / 4, 3 = HFINTOSC, 4 = LFINTOSC, 5 = MFINTOSC (31kHz)
+    T2PR = clockPeriod;
+    
     T2CONbits.CKPS = 7; // 1:2^n, where CKPS = n
     T2CONbits.OUTPS = 0; // 1:n+1, where OUTPS = n
     T2CONbits.ON = 1;
-
-    T2CLKCON = 2;   //F_osc
-    T2CLKCON = 1;   //F_osc / 4
-
-    // ADC interrupt
-    INTCONbits.GIE = 1; //Global Interrupt Enable bit
-
-    PIR1bits.ADIF = 0;  //ADC Interrupt Flag bit (must be cleared by software)
-    PIE1bits.ADIE = 1;      //ADC Interrupt Enable bit
 }
 
 bool ADCbusy()

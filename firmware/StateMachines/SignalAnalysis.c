@@ -1,74 +1,101 @@
 #include "SignalAnalysis.h"
+#include "SignalSampling.h"
 #include "SamplingParams.h"
-#include "../HelperClasses/WindowAvg.h"
+#include "HelperClasses/WindowAvg.h"
 
 /* Private variable declarations */
-static struct
-{
-    int sin[NUM_BUFS];
-    int cos[NUM_BUFS];
-}rollingAvgBufs;
 
-WndAvg_t wndAvg_sin;
-WndAvg_t wndAvg_cos;
+// Raw buffers for averaging/summing
+int16_t sinSumBuf[POST_FILT_SUM_LEN];
+int16_t cosSumBuf[POST_FILT_SUM_LEN];
 
 //State machine
 static struct
 {
     //partially-filled buffer
-    int sumSin;
-    int sumCos;
-    int sumCnt;
+    int16_t sumSin;     //int16's can hold 32*(4 sample cycles * trig table coefficients) = 128 ADC samples
+    int16_t sumCos;
+    uint16_t sumCnt;
+    
+    // Averaging/summing
+    WndAvg_t avgSin;
+    WndAvg_t avgCos;
 
     //newest signal strength data
-    int sigStrn;
-    bool b_validSigStrn;
+    uint16_t sigStrength;
 }SM;
 
-
 /* Private function declarations */
-static void onSumComplete();
+void resetSums();   // Reset index and sums
+uint16_t fastSqrt(int32_t x);
 
 /* Public function definitions */
 
 void SigAnalysis_init()
 {
-    //todo: init SM struct
-
-    WndAvg_init(&wndAvg_sin, rollingAvgBufs.sin);
-    WndAvg_init(&wndAvg_cos, rollingAvgBufs.cos);
+    WndAvg_init(&SM.avgSin, sinSumBuf, POST_FILT_SUM_LEN);
+    WndAvg_init(&SM.avgCos, cosSumBuf, POST_FILT_SUM_LEN);
+    
+    SigAnalysis_reset();
 }
 
-SigAnl_t SigAnalysis_tasks(int newSampCnt, void* buf)
+void SigAnalysis_reset()
 {
-    SM.b_validSigStrn = false;  //Flag is valid only for one task loop
+    SM.sigStrength = 0;
+    resetSums();
+    WndAvg_clear(&SM.avgSin);
+    WndAvg_clear(&SM.avgCos);
+}
 
-    for (int i = 0; i < newSampCnt; i++)
+void SigAnalysis_tasks()
+{
+    /*
+     * Task loop description:
+     * 
+     * -New ADC samples are processed 4 samples at a time, since f_samp = 4 * (frequency of interest), and 4 samples = 2*pi radians
+     * -Once the predetermined number of periods ("period" = 4 samples) are processed, the sine/cosine sums are saved in a buffer
+     *      used for post-averaging/filtering.
+     */
+    
+    /* Process new samples in groups of 4 */
+    uint16_t newSmpGroups = (SigSamp_getNumSamples() - SM.sumCnt) / 4;
+    for (uint16_t i = 0; i < newSmpGroups; i++)
     {
-        SM.sumSin += sinTable[SM.sumCnt] * ((int16_t*)buf)[i];      //todo: implement hardware-accelerated mult/add; figure out sample width
-        SM.sumCos += cosTable[SM.sumCnt] * ((int16_t*)buf)[i];      //todo: implement hardware-accelerated mult/add; figure out sample width
-        SM.sumCnt++;
-
-        if (SM.sumCnt >= SAMPLE_BUF_SIZE)
-        {
-            onSumComplete();
-        }
+        const int16_t* buf = &SigSamp_getSampBuf()[SM.sumCnt];
+        // 2-bit sine lookup table = {0, 1, 0, -1}
+        // 2-bit cosine lookup table = {1, 0, -1, 0}
+        SM.sumSin += buf[1] - buf[3];
+        SM.sumCos += buf[0] - buf[2];
+        SM.sumCnt += 4;
     }
 
-    return (SigAnl_t) {
-        .b_newData = SM.b_validSigStrn,
-    };
+    // Post-averaging and signal strength calculations
+    if (SM.sumCnt >= SAMPLE_BUF_SIZE)
+    {
+        // Push sums into WindowAvg buffers
+        //TODO: MAKE SURE THE SCALING IS CORRECT WITHOUT TRUNCATING BITS!!
+        int16_t avgIm = WndAvg_pushVal(&SM.avgSin, SM.sumSin) >> CYCLE_SUM_RIGHTSHIFT;
+        int16_t avgRe = WndAvg_pushVal(&SM.avgSin, SM.sumCos) >> CYCLE_SUM_RIGHTSHIFT;
+        
+        // todo: fast sqrt??
+        SM.sigStrength = avgIm * avgIm + avgRe * avgRe;     // calculate abs(Re,Im)
+        
+        resetSums();
+    }
 }
 
 /* Private function definitions */
 
-static void onSumComplete()
+void resetSums()
 {
-    //push sums into WindowAvg buffers
-    int avgIm = WndAvg_pushVal(&wndAvg_sin, SM.sumSin);
-    int avgRe = WndAvg_pushVal(&wndAvg_cos, SM.sumCos);
+    // Reset index and sums
+    SM.sumCnt = 0;
+    SM.sumCos = 0;
+    SM.sumSin = 0;
+}
 
-    // calculate abs(Re,Im)
-    SM.sigStrn = avgIm * avgIm + avgRe * avgRe;
-    SM.b_validSigStrn = true;
+uint16_t fastSqrt(int32_t x)
+{
+    //todo
+    return 0;
 }

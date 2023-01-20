@@ -83,9 +83,9 @@ void LEDMgr_tasks(int sigStr)
     }
 }
 
-int LEDMgr_getBrightLvl()
+bool LEDMgr_isActive()
 {
-    return SM.brightLvl;
+    return ON == SM.state;
 }
 
 /* Private function definitions */

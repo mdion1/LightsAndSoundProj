@@ -6,10 +6,5 @@
 void main(void)
 {
     TaskMgr_init();
-    int x = 0;
-    for (int i = 0; i < 10; i++)
-    {
-        x++;
-    }
-    return;
+    TaskMgr_loopNoReturn();
 }

@@ -2,6 +2,7 @@
 #include "SamplingParams.h"
 
 /* Private variable declarations */
+#define SAMP_GRPSIZ_MASK RELATIVE_FSAMP
 
 // List of states
 typedef enum {
@@ -12,21 +13,19 @@ typedef enum {
 // State machine owned by the main software thread
 static struct {
     SigSampState_t state;
-    int headIdxCpy;             //buffer index of the next sample to be converted; copy of the volatile variable owned by the ISR, updated every task loop
-    int tailIdx;                //buffer index of the next sample to be processed; updated every task loop, set to the head index of the previous task loop
+    uint16_t headIdxCpy;             //buffer index of the next sample to be converted; copy of the volatile variable owned by the ISR, updated every task loop
 }SM;
 
 // State machine owned by the ISR
 static volatile struct {
-    int headIdxVol;            //buffer index of the next sample to be converted; read-only except by the ISR callback
-    bool b_collision;          // set only by the ISR callback; cleared by the main thread
+    uint16_t headIdx;            //buffer index of the next sample to be converted; read-only except by the ISR callback
+    bool bSampComplete;
 }ISRvars;
 
 // Sample buffer
 static int16_t sampBuf[SAMPLE_BUF_SIZE];
 
 /* Private function declarations */
-static void resetBuf();
 static void samplingTasks();
 static void ISRcallback();
 
@@ -35,30 +34,38 @@ static void ISRcallback();
 void SigSamp_init()
 {
     SM.state = IDLE;
-    resetBuf();
-
-    //todo: register ISR callback
+    SM.headIdxCpy = 0;
+    ISRvars.headIdx = 0;
+    ISRvars.bSampComplete = false;
+    HAL_registerADCisr(ISRcallback);
 }
 
 void SigSamp_start()
 {
-    HAL_ADCStartContinuous();
+    //todo: disable ADC timer interrupt, disable timer, clear flags
+    
+    
     SM.state = SAMPLING;
+    
+    // Reset indices
+    SM.headIdxCpy = 0;
+    ISRvars.headIdx = 0;
+    ISRvars.bSampComplete = false;
+    
+    // todo: enable ADC timer interrupt, enable timer
+    HAL_ADCStartContinuous();
 }
 
 void SigSamp_stop()
 {
     HAL_ADCstop();
     SM.state = IDLE;
+    
+    //todo: disable ADC timer interrupt, disable timer, clear flags
 }
 
-SigSampEvents_t SigSamp_tasks()
+void SigSamp_tasks()
 {
-    SigSampEvents_t events = (SigSampEvents_t) {
-        .newSamples = 0,
-        .buf = NULL
-    };
-
     switch(SM.state)
     {
         default:
@@ -66,52 +73,50 @@ SigSampEvents_t SigSamp_tasks()
         break;
         case SAMPLING:
             samplingTasks();
-            events.newSamples = SM.headIdxCpy - SM.tailIdx;
-            events.buf = &sampBuf[SM.tailIdx];
         break;
     }
+}
 
-    return events;
+uint16_t SigSamp_getNumSamples()
+{
+    return SM.headIdxCpy;
+}
+
+const int16_t* SigSamp_getSampBuf()
+{
+    return sampBuf;
+}
+
+SigSamp_isActive()
+{
+    return SAMPLING == SM.state;
 }
 
 /* Private function definitions */
-static void resetBuf()
-{
-    SM.headIdxCpy = SM.tailIdx = 0;
-
-    //critical section ("di"/"ei"), reset volatile ISR vars
-}
-
 static void samplingTasks()
 {
     // Protected section: copy ISR-owned volatile variables
     HAL_disableInt();
-    int headIdx_cpy = ISRvars.headIdxVol;
-    bool collisionFlag = ISRvars.b_collision;
+    SM.headIdxCpy = ISRvars.headIdx;
+    bool bDone = ISRvars.bSampComplete;
     HAL_enableInt();
 
-    if (collisionFlag)
+    if (bDone)
     {
-        //todo: handle collision
-        resetBuf();//??
-    }
-    else
-    {
-        SM.tailIdx = SM.headIdxCpy;
-        SM.headIdxCpy = headIdx_cpy;
+        SM.state = IDLE;
     }
 }
 
 static void ISRcallback()
 {
     // Push new sample to the buffer
-    sampBuf[ISRvars.headIdxVol] = HAL_getADCconv();
+    sampBuf[ISRvars.headIdx] = HAL_getADCconv();
 
     // Increment buf indx
-    ISRvars.headIdxVol = (ISRvars.headIdxVol >= SAMPLE_BUF_SIZE) ? 0 : (ISRvars.headIdxVol + 1);
-
-    // If sampling has overrun sample processing, set collision flag
-    ISRvars.b_collision |= (ISRvars.headIdxVol == SM.tailIdx);
-
-    //todo: account for collisions!
+    ISRvars.headIdx++;
+    if (ISRvars.headIdx == SAMPLE_BUF_SIZE)
+    {
+        //stop sampling
+        ISRvars.bSampComplete = true;
+    }
 }
