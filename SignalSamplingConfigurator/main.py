@@ -13,20 +13,20 @@ def main():
     # Build system from transfer function blocks
     TARGET_FREQ = 263
     RELATIVE_FSAMP = 4
-    NUM_CYCLES_SAMPLED = 16
+    NUM_CYCLES_SAMPLED = 64
     LPF_CORNER_FREQ = 512   # in Hz
     HPF_CORNER_FREQ = 128   # in Hz
     signalChain: List["TransferFn"] = []
 
-    signalChain.append(LPF(LPF_CORNER_FREQ))
-    signalChain.append(HPF(HPF_CORNER_FREQ))
+    #signalChain.append(LPF(LPF_CORNER_FREQ))
+    #signalChain.append(HPF(HPF_CORNER_FREQ))
     signalChain.append(digitalFourierFilt(TARGET_FREQ, RELATIVE_FSAMP * TARGET_FREQ, NUM_CYCLES_SAMPLED))
 
     # create list of input frequencies to test
     CHROM_STEP = math.pow(2, 1/12)
     
-    NUM_CHROM_STEPS = 11     #Number of chromatic steps in either direction
-    SWEEP_RES = 40
+    NUM_CHROM_STEPS = 1     #Number of chromatic steps in either direction
+    SWEEP_RES = 80
 
     chromStepList = np.append(
         np.linspace(-NUM_CHROM_STEPS, 0, SWEEP_RES),

@@ -1,0 +1,58 @@
+Finish HSV to RGB converter
+Random number + seed generator
+Linear ramp module
+LED manager state machine
+Finish signal analysis filter
+Sleep state machine
+Sleep low-level stuff, including interrupt-on-sample
+Math: log() function, uint to uint: bitshift + lookup table with desired bit depth
+
+
+
+
+
+
+Notes:
+
+16 bit signed sine/cosine sums * N groups averaged --> rightshift down to 8 bits for "brightness level"?
+    --> depends on HSVtoRGB function
+
+
+HSV to RGB function partially implemented with 16-bit fixed point math.
+There is still some rounding/truncation error, wherever there are two sequential multiply/round operations
+    --> !!! Actually, I think this can be fixed by changing my fixed-point representation such that 0x00 means "1.0", instead of
+        255 being the highest value. that way I can have a true 1.0 x 1.0 result, instead of (255 x 255) >> 8 = 254
+Is it worth running this function every time there is a new brightness value?
+How can I use dithering to increase my PWM "resolution"? counter 0 - 255 adds to lower byte, take overflow bit? Add run counter thru 8-bit left-shift xor register?
+
+
+Sampling during sleep mode:
+    -ADC needs to select dedicated FRC oscillator to operate during sleep mode. Set ADCON0<ADCS> bit
+From the manual:
+"To minimize current consumption, consider the following conditions:
+• I/O pins must not be floating
+• External circuitry sinking current from I/O pins
+• Internal circuitry sourcing current from I/O pins
+• Current draw from pins with internal weak pull-ups
+• Modules using any oscillator"
+
+See Section 6.2.1 and 6.2.2
+"Wake-up will occur regardless of the state of the GIE bit. If
+the GIE bit is disabled, the device continues execution at the instruction after the SLEEP instruction. If the GIE bit is
+enabled, the device executes the instruction after the SLEEP instruction, the device will then call the Interrupt Service
+Routine. In cases where the execution of the instruction following SLEEP is not desirable, the user will have a NOP
+after the SLEEP instruction."
+
+sleep vs idle: idle = all peripherals on, sleep = ADC will still run. both use "sleep" instruction. Setting VREGPM bit in VREGCON allows for
+"low power sleep mode."
+
+Sleep mode: F_osc and F_osc/4 disabled... can we use a different oscillator?
+
+#include <xc.h> ---> defines SLEEP() macro
+
+set bits in PMD0 - PMD5 to disable modules
+
+See ALU overflow/carry bits for math optimization
+
+Timer0 has the biggest prescaler selection (up to 1:32768), use with LFINTOSC for deep sleep timing
+    

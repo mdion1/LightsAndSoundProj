@@ -12,10 +12,19 @@ typedef struct
 }task_t;
 
 /* Private variable declarations */
+
+// List of states
+typedef enum {
+    PWR_SAVE = 0,
+    STBY_SAMPLING,
+    ACTIVE
+}TaskMgrState_t;
+
 // State machine
 #define MAX_NUM_TASKS 8
 static struct
 {
+    TaskMgrState_t state;
     task_t taskList[MAX_NUM_TASKS];
     uint8_t taskListLen;
 }SM;
@@ -28,6 +37,11 @@ static struct
 
 /* Private function declarations */
 void registerTask(void (*p_taskFn)(void), uint16_t interval);   // intervals must be <= 32767
+static void setupState(TaskMgrState_t state);
+static void setupStbySampling();    //todo: bundle into setupState()?
+static void stbySamplingTasks();
+static void activeTasks();
+
 
 /* Public function definitions */
 
@@ -50,28 +64,40 @@ void TaskMgr_init(void)
 
 void TaskMgr_loopNoReturn(void)
 {
-    while(1) {
-        
-        uint16_t t_now = hal_Systick16();
-        
-        for (uint8_t i = 0; i < SM.taskListLen; i++)
+    while(1)
+    {
+        switch (SM.state)
         {
-            task_t* task = &SM.taskList[i];
-            bool once = true;
-            while (t_now - task->tPrev >= task->interval)       //TODO: THIS BREAKS DUE TO WRAPAROUND
+            case PWR_SAVE:
             {
-                // only call the task once, even if several intervals have expired
-                if (once) {
-                    (*task->p_taskFn)();    //call registered task function
-                    once = false;
-                }
-                
-                /* Add interval to tPrev until tPrev + interval > t_now */
-                task->tPrev += task->interval;
+                /* Upon waking from power save, start "standby sampling."
+                 *      - Set up triggered ADC sampling
+                 *      - Set up wake-on-conversion-complete
+                 *      -
+                */
+               // Upon waking from power save, setup "standby sampling."
+               setupStbySampling();
+               SM.state = STBY_SAMPLING;
             }
+            break;
+            case STBY_SAMPLING:
+            {
+                stbySamplingTasks();
+            }
+            break;
+            case ACTIVE:
+            default:
+            {
+                activeTasks();
+            }
+            break;
         }
+
+
+
     }
 }
+
 
 /* Private function definitions */
 // Params:  !!intervals must be <= 32767!!
@@ -90,5 +116,37 @@ void registerTask(void (*p_taskFn)(void), uint16_t interval)
         SM.taskList[SM.taskListLen].p_taskFn = p_taskFn;
         SM.taskList[SM.taskListLen].interval = interval;
         SM.taskList[SM.taskListLen].tPrev = 0;
+    }
+}
+
+
+static void setupStbySampling()
+{
+    /* Set up triggered ADC sampling
+     * Set up wake-on-conversion-complete
+     * Start first conversion
+     */
+}
+
+static void activeTasks()
+{
+        
+    uint16_t t_now = hal_Systick16();       //todo: instead of system time, go by sampling timer? Or use this later to reduce pwr consumption?
+    
+    for (uint8_t i = 0; i < SM.taskListLen; i++)
+    {
+        task_t* task = &SM.taskList[i];
+        bool once = true;
+        while (t_now - task->tPrev >= task->interval)       //TODO: THIS BREAKS DUE TO WRAPAROUND
+        {
+            // only call the task once, even if several intervals have expired
+            if (once) {
+                (*task->p_taskFn)();    //call registered task function
+                once = false;
+            }
+            
+            /* Add interval to tPrev until tPrev + interval > t_now */
+            task->tPrev += task->interval;
+        }
     }
 }

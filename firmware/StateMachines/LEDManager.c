@@ -9,7 +9,7 @@ static LinRamp_t ramp_R;
 static LinRamp_t ramp_G;
 static LinRamp_t ramp_B;
 
-//List of state
+//List of states
 typedef enum{
     OFF = 0,
     ON,
