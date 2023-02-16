@@ -25,10 +25,10 @@
             "console": "integratedTerminal"
         },   
         {
-            "name": "HSL to RGB test",
+            "name": "HSV to RGB test",
             "type": "python",
             "request": "launch",
-            "program": "HSLtoRGBtest/HSLtoRGB.py",
+            "program": "HSVtoRGBtest/HSVtoRGB.py",
             "args":[
             
             ],

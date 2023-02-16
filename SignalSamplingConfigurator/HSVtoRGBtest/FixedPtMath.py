@@ -36,6 +36,8 @@ class FixPt():
             self.int16Val = intVal
 
     def getFloat(self) -> float:
+        if self.isOne:
+            return 1
         return self.int16Val / 65536.0
 
     def mult(a: "FixPt", b: "FixPt") -> "FixPt":

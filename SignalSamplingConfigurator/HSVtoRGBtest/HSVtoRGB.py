@@ -129,6 +129,11 @@ def HSVtoRGB_INTMATH(hue: float, sat: float, value: float) -> Tuple[float, float
         R = m
         G = M
         B = FixPt.add(z, m)
+    elif H.getInt8() == 128:    # (1024 - slope * H.getInt8()) / 256 == 1.0
+        z = FixPt.subtract(M, m)
+        R = m
+        G = FixPt.add(z, m)
+        B = M
     elif hue < 240:
         X = FixPt((1024 - slope * H.getInt8()) / 256)
         z = FixPt.mult(FixPt.subtract(M, m), X)
