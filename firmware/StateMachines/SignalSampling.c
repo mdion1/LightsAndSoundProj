@@ -42,9 +42,6 @@ void SigSamp_init()
 
 void SigSamp_start()
 {
-    //todo: disable ADC timer interrupt, disable timer, clear flags
-    
-    
     SM.state = SAMPLING;
     
     // Reset indices
@@ -53,15 +50,13 @@ void SigSamp_start()
     ISRvars.bSampComplete = false;
     
     // todo: enable ADC timer interrupt, enable timer
-    HAL_ADCStartContinuous();
+    HAL_enableADC();
 }
 
 void SigSamp_stop()
 {
-    HAL_ADCstop();
+    HAL_disableADC();
     SM.state = IDLE;
-    
-    //todo: disable ADC timer interrupt, disable timer, clear flags
 }
 
 void SigSamp_tasks()
@@ -96,13 +91,14 @@ SigSamp_isActive()
 static void samplingTasks()
 {
     // Protected section: copy ISR-owned volatile variables
-    HAL_disableInt();
+    HAL_globalIntDis();
     SM.headIdxCpy = ISRvars.headIdx;
     bool bDone = ISRvars.bSampComplete;
-    HAL_enableInt();
+    HAL_globalIntEn();
 
     if (bDone)
     {
+        HAL_disableADC();
         SM.state = IDLE;
     }
 }

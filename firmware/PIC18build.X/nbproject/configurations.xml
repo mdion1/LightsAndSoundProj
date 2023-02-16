@@ -25,6 +25,8 @@
             <itemPath>../HAL/PIC18F06Q41/hal_Systick.h</itemPath>
             <itemPath>../HAL/PIC18F06Q41/hal_timers.c</itemPath>
             <itemPath>../HAL/PIC18F06Q41/hal_timers.h</itemPath>
+            <itemPath>../HAL/PIC18F06Q41/HAL.c</itemPath>
+            <itemPath>../HAL/PIC18F06Q41/hal_ADC.h</itemPath>
           </logicalFolder>
           <logicalFolder name="PIC18F67K40" displayName="PIC18F67K40" projectFiles="true">
             <itemPath>../HAL/PIC18F67K40/device_config.c</itemPath>
@@ -42,12 +44,12 @@
         <logicalFolder name="HelperClasses"
                        displayName="HelperClasses"
                        projectFiles="true">
-          <itemPath>../HelperClasses/HSLtoRGB.c</itemPath>
-          <itemPath>../HelperClasses/HSLtoRGB.h</itemPath>
           <itemPath>../HelperClasses/LinearRamp.h</itemPath>
           <itemPath>../HelperClasses/WindowAvg.h</itemPath>
           <itemPath>../HelperClasses/WindowAvg.c</itemPath>
           <itemPath>../HelperClasses/LinearRamp.c</itemPath>
+          <itemPath>../HelperClasses/HSVtoRGB.c</itemPath>
+          <itemPath>../HelperClasses/HSVtoRGB.h</itemPath>
         </logicalFolder>
         <logicalFolder name="StateMachines"
                        displayName="StateMachines"

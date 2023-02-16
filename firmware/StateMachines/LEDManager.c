@@ -1,5 +1,5 @@
 #include "LEDManager.h"
-#include "../HelperClasses/HSLtoRGB.h"
+#include "../HelperClasses/HSVtoRGB.h"
 #include "../HelperClasses/LinearRamp.h"
 #include "SamplingParams.h"
 
@@ -36,8 +36,10 @@ void LEDMgr_init()
     //todo: init State machine
 }
 
-void LEDMgr_tasks(int sigStr)
+void LEDMgr_tasks()
 {
+    uint16_t sigStr = SigAnalysis_getSigStr();
+    
     switch (SM.state)
     {
     case OFF:
@@ -45,6 +47,7 @@ void LEDMgr_tasks(int sigStr)
         if (sigStr >= SIG_STR_FLOOR)
         {
             SM.state = ON;
+            HAL_enPWM();
 
             LinRamp_reset(&ramp_R);
             LinRamp_reset(&ramp_G);

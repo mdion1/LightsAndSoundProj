@@ -89,12 +89,11 @@ void TaskMgr_loopNoReturn(void)
             default:
             {
                 activeTasks();
+                
             }
             break;
         }
-
-
-
+        HAL_Sleep();
     }
 }
 
@@ -128,8 +127,46 @@ static void setupStbySampling()
      */
 }
 
+static void stbySamplingTasks()
+{
+    /* Check if sampling has completed */
+    if (SigSamp_isActive()) {
+        HAL_Sleep();
+    }
+    else {
+        SigAnalysis_processBuf();
+        if (SigAnalysis_getSigStr() > SIG_STR_STBY_THRESH) {
+            /* switch to active sampling mode */
+        }
+        else {
+            /* hibernate */
+        }
+    }
+}
+
 static void activeTasks()
 {
+    /* Check if buffer is filled */
+    if (SigSamp_isActive()) {
+        return;
+    }
+    
+    SigAnalysisProcessBuf();
+    
+    sm.LEDTaskBufCnt++;
+    if (sm.LEDTaskBufCnt >= LED_TASK_INTERVAL)
+    {
+        sm.LEDTaskBufCnt = 0;
+        LEDMgr_tasks());
+    }
+    
+    HAL_initADCSampling();
+
+    
+    
+    
+    
+    
         
     uint16_t t_now = hal_Systick16();       //todo: instead of system time, go by sampling timer? Or use this later to reduce pwr consumption?
     
