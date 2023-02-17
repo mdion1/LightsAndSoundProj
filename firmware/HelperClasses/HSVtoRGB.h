@@ -4,15 +4,9 @@
 
 typedef struct
 {
-    int hue;
-    int sat;
-}HSL_t;
-
-typedef struct
-{
     int R;
     int G;
     int B;
 }RGB_t;
 
-RGB_t HSLtoRGB(const HSL_t* pHSL);
+RGB_t HSVtoRGB(uint8_t hue, uint8_t sat, uint8_t val);
