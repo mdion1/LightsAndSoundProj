@@ -14,19 +14,19 @@ void TMR_configTMR0()
 {
     // Set clock source, prescaler, and period
     T0CON1bits.CS = 0b100;  // LFINTOSC
-    T0CON1bits.CKPS = CLOCK_DIV_8192;   // 1:8192
+    T0CON1bits.CKPS = TMR0_CLOCK_DIV_8192;   // 1:8192
     TMR0H = TMR0_PERIOD;
 }
 
 void TMR_EnTMR0() 
 {
     PMD1 &= ~(0x01);     // Clear Peripheral Module Disable bit
-    T0CONbits.EN = 1;
+    T0CON0bits.EN = 1;
 }
 
 void TMR_DisTMR0()
 {
-    T0CONbits.EN = 0;
+    T0CON0bits.EN = 0;
     PMD1 |= 1;     // Set Peripheral Module Disable bit
 }
 
@@ -46,26 +46,26 @@ void TMR_configTMR1()
 void TMR_EnTMR1() 
 {
     PMD1 &= ~(1 << 1);     // Clear Peripheral Module Disable bit
-    T1CONbits.EN = 1;
+    T1CONbits.ON = 1;
 }
 
 void TMR_DisTMR1()
 {
-    T1CONbits.EN = 0;
+    T1CONbits.ON = 0;
     PMD1 |= (1 << 1);     // Set Peripheral Module Disable bit
 }
 
 uint16_t TMR_getTMR1Count()
 {
-    /* Note: when RD16 bit is enabled, the 8 upper bits of the timer are buffered when the lower
-     * 8 bits are read. Double-check the compiled assembly to make sure TMRxL is read first, then TMRxH
-     */
-    return TMR1;
+    /* Note: when RD16 bit is enabled, the 8 upper bits of the timer are buffered when the lower 8 bits are read. */
+    uint8_t lower = TMR1L;
+    uint8_t upper = TMR1H;
+    return (upper << 8) | lower;
 }
 
 
 /* Timer2 */
-void TMR_configTMR2(uin8t_t prescaler, uint8_t postscaler, uint8_t period)
+void TMR_configTMR2(uint8_t prescaler, uint8_t postscaler, uint8_t period)
 {
     T2CLKCONbits.CS = 3;            // Set HFINTOSC as clock source
     T2PR = period;

@@ -13,7 +13,7 @@ def main():
     # Build system from transfer function blocks
     TARGET_FREQ = 263
     RELATIVE_FSAMP = 4
-    NUM_CYCLES_SAMPLED = 64
+    NUM_CYCLES_SAMPLED = 32
     LPF_CORNER_FREQ = 512   # in Hz
     HPF_CORNER_FREQ = 128   # in Hz
     signalChain: List["TransferFn"] = []

@@ -1,75 +1,61 @@
 #include "SignalSampling.h"
 #include "SamplingParams.h"
+#include "HAL/HAL.h"
 
 /* Private variable declarations */
-#define SAMP_GRPSIZ_MASK RELATIVE_FSAMP
-
-// List of states
-typedef enum {
-    IDLE = 0,
-    SAMPLING = 1
-}SigSampState_t;
+#define SAMPLE_BUF_SIZE 256
 
 // State machine owned by the main software thread
 static struct {
-    SigSampState_t state;
     uint16_t headIdxCpy;             //buffer index of the next sample to be converted; copy of the volatile variable owned by the ISR, updated every task loop
 }SM;
 
 // State machine owned by the ISR
 static volatile struct {
     uint16_t headIdx;            //buffer index of the next sample to be converted; read-only except by the ISR callback
-    bool bSampComplete;
 }ISRvars;
 
 // Sample buffer
 static int16_t sampBuf[SAMPLE_BUF_SIZE];
 
 /* Private function declarations */
-static void samplingTasks();
+static void resetBuf();
 static void ISRcallback();
 
 /* Public function definitions */
 
 void SigSamp_init()
 {
-    SM.state = IDLE;
-    SM.headIdxCpy = 0;
-    ISRvars.headIdx = 0;
-    ISRvars.bSampComplete = false;
+    resetBuf();
     HAL_registerADCisr(ISRcallback);
 }
 
 void SigSamp_start()
 {
-    SM.state = SAMPLING;
-    
-    // Reset indices
-    SM.headIdxCpy = 0;
-    ISRvars.headIdx = 0;
-    ISRvars.bSampComplete = false;
+    resetBuf();
     
     // todo: enable ADC timer interrupt, enable timer
-    HAL_enableADC();
+    HAL_ADCEnable();
 }
 
 void SigSamp_stop()
 {
-    HAL_disableADC();
-    SM.state = IDLE;
+    HAL_ADCDisable();
+    resetBuf();
 }
 
 void SigSamp_tasks()
 {
-    switch(SM.state)
-    {
-        default:
-        case IDLE:
-        break;
-        case SAMPLING:
-            samplingTasks();
-        break;
+    /* If timer-triggered ADC sampling is not enabled, enable it. */
+    if (!HAL_ADCIsEnabled()) {
+        SigSamp_start();
+        return;
     }
+    
+    /* Protected section: make local copies of ISR-owned volatile variables. */
+    HAL_globalIntDis();
+    SM.headIdxCpy = ISRvars.headIdx;
+    HAL_globalIntEn();
 }
 
 uint16_t SigSamp_getNumSamples()
@@ -82,37 +68,23 @@ const int16_t* SigSamp_getSampBuf()
     return sampBuf;
 }
 
-SigSamp_isActive()
-{
-    return SAMPLING == SM.state;
-}
-
 /* Private function definitions */
-static void samplingTasks()
+static void resetBuf()
 {
-    // Protected section: copy ISR-owned volatile variables
-    HAL_globalIntDis();
-    SM.headIdxCpy = ISRvars.headIdx;
-    bool bDone = ISRvars.bSampComplete;
-    HAL_globalIntEn();
-
-    if (bDone)
-    {
-        HAL_disableADC();
-        SM.state = IDLE;
-    }
+    // Reset indices
+    SM.headIdxCpy = 0;
+    ISRvars.headIdx = 0;
 }
 
 static void ISRcallback()
 {
     // Push new sample to the buffer
-    sampBuf[ISRvars.headIdx] = HAL_getADCconv();
+    sampBuf[ISRvars.headIdx] = HAL_ADCGetConv();
 
-    // Increment buf indx
+    // Increment buffer index
     ISRvars.headIdx++;
-    if (ISRvars.headIdx == SAMPLE_BUF_SIZE)
-    {
+    if (SAMPLE_BUF_SIZE == ISRvars.headIdx) {   // headIdx must be an int16 to prevent rollover
         //stop sampling
-        ISRvars.bSampComplete = true;
+        HAL_ADCDisable();
     }
 }

@@ -5,106 +5,76 @@
 
 /* Private variable declarations */
 #define RAMP_UPDATE_INT 1       // in milliseconds
-static LinRamp_t ramp_R;
-static LinRamp_t ramp_G;
-static LinRamp_t ramp_B;
-
-//List of states
-typedef enum{
-    OFF = 0,
-    ON,
-}LEDMgrState_t;
 
 //State machine
 static struct
 {
-    LEDMgrState_t state;
     int brightLvl;
     RGB_t led;
+    LinRamp_t hueRamp;
+    LinRamp_t satRamp;
 }SM;
 
 /* Private function declarations */
 static void onRampComplete();
+static int32_t gammaFunction(int32_t sumSin, int32_t sumCos);
+static void LPF_pushVal(int32_t val);
 
 /* Public function definitions */
 void LEDMgr_init()
 {
-    LinRamp_init(&ramp_R);
-    LinRamp_init(&ramp_G);
-    LinRamp_init(&ramp_B);
+    LinRamp_init(&SM.hueRamp);
+    LinRamp_init(&SM.satRamp);
 
     //todo: init State machine
 }
 
 void LEDMgr_tasks()
 {
-    uint16_t sigStr = SigAnalysis_getSigStr();
-    
-    switch (SM.state)
-    {
-    case OFF:
-        //check sigStr, compare to threshold level
-        if (sigStr >= SIG_STR_FLOOR)
-        {
-            SM.state = ON;
-            HAL_enPWM();
+    //todo: implement filtering/averaging for brightness
+    //convert SigLvl to BrtLvl, average
+    //check if BrtLvl and SigLvl are below threshold, turn off and raise "off" event
+    //todo: need on/off state hysteresis variables/delays (OR put the delays in the Sleep module logic!)
+    uint16_t NTotalSamples = SigSamp_getNumSamples();
 
-            LinRamp_reset(&ramp_R);
-            LinRamp_reset(&ramp_G);
-            LinRamp_reset(&ramp_B);
-            onRampComplete();
-        }
-        break;
-
-    case ON:
-    {
-        //todo: implement filtering/averaging for brightness
-        //convert SigLvl to BrtLvl, average
-        //check if BrtLvl and SigLvl are below threshold, turn off and raise "off" event
-        //todo: need on/off state hysteresis variables/delays (OR put the delays in the Sleep module logic!)
-
-        int R = LinRamp_getValNow(&ramp_R);
-        R = normalizeBright(R);
-        // set PWM for R
-        //repeat for B, G
-        //...
-
-
-        if (LinRamp_isDone(&ramp_R)
-            && LinRamp_isDone(&ramp_G)
-            && LinRamp_isDone(&ramp_B)
-        )
-        {
-            // initialize next ramp to random color
-            onRampComplete();
-        }
+    if (NTotalSamples - SM.sampPrev < LED_TASK_INTERVAL) {
+        return;
     }
-    break;
-    
-    default:
-        break;
-    }
-}
 
-bool LEDMgr_isActive()
-{
-    return ON == SM.state;
+    SM.sampPrev = NTotalSamples;        /*! \todo what about sample index reset/wraparound? Use a different SigSamp getter? */
+
+    int32_t SigStrSin, SigStrCos;
+    SigAnalysis_getSigStr(&SigStrSin, &SigStrCos);
+
+    int32_t sigStrNorm = gammaFunction(SigStrSin, SigStrCos);
+    uint8_t valFiltered = LPF_pushVal(sigStrNorm);
+
+    // Increment hue and saturation ramp
+    uint8_t hueNext = LinRamp_step(&SM.rampHue);
+    uint8_t satNext = LinRamp_step(&SM.rampSat);
+
+    // Combine updated hue/sat/val to calculate next RGB value
+    RGB_t RGBNext = HSVtoRGB(hueNext, satNext, valFiltered);
+    HAL_setPWM(RGBNext.R, RGBNext.G, RGBNext.B);
+
+    // Check for completed color ramp
+    if (LinRamp_isDone(&SM.rampHue)
+        && LinRamp_isDone(&SM.rampSat)
+    )
+    {
+        // initialize next ramp to random color
+        onRampComplete();
+    }
+
 }
 
 /* Private function definitions */
 void onRampComplete()
 {
     //get random color, init ramp
-    HSL_t randColor = (HSL_t) {
-        .hue = 0,
-        .sat = 0
-    };
-    RGB_t targetColor = HSLtoRGB(&randColor);
+    uint8_t hueRand;
+    uint8_t satRand;    //get rand uint8
     
-    LinRamp_setup(&ramp_R, targetColor.R, RAMP_UPDATE_INT);
-    LinRamp_setup(&ramp_G, targetColor.G, RAMP_UPDATE_INT);
-    LinRamp_setup(&ramp_B, targetColor.B, RAMP_UPDATE_INT);
-    LinRamp_start(&ramp_R);
-    LinRamp_start(&ramp_G);
-    LinRamp_start(&ramp_B);
+    LinRamp_setup(&SM.hueRamp, hueRand, RAMP_UPDATE_INT);
+    LinRamp_setup(&SM.satRamp, satRand, RAMP_UPDATE_INT);
 }

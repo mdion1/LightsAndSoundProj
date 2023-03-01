@@ -22,7 +22,7 @@ void ADC_init()
 }
 
 void ADC_En() {
-    PDM2 &= 0b11111101;     // Clear peripheral module disable bit
+    PMD2 &= 0b11111101;     // Clear peripheral module disable bit
     
     // Configure input pin as an analog input
     TRISA |= (1 << 5);
@@ -48,7 +48,7 @@ bool ADC_isBusy() {
 }
 
 int16_t ADC_getConv() {
-    return ADRES;
+    return (int16_t)ADRES;
 }
 
 #endif

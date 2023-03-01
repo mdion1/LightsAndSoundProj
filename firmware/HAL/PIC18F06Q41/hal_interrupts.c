@@ -1,4 +1,5 @@
 #ifdef __PIC18F06Q41__
+#include "hal_interrupts.h"
 #include <xc.h>
 
 /* Private function declarations */
@@ -38,11 +39,11 @@ void INT_clrTMR0IntFlag()  {
 }
 
 void INT_GlobalIntEn() {
-    INTCONbits.GIE = 1; //Global Interrupt Enable bit
+    INTCON0bits.GIE = 1; //Global Interrupt Enable bit
 }
 
 void INT_GlobalIntDis() {
-    INTCONbits.GIE = 0; //Global Interrupt Enable bit
+    INTCON0bits.GIE = 0; //Global Interrupt Enable bit
 }
 
 /* Private function definitions */
@@ -53,13 +54,13 @@ static void dummyCallback() {
 /* ISR's */
 void __interrupt(irq(AD),high_priority) ADCInt(void)
 {
-    HAL_clearADCintFlag();
+    INT_clrADCIntFlag();
     (*ADC_interrupt_callback)();
 }
 
 void __interrupt(irq(TMR0),high_priority) TMR0Int(void)
 {
-    HAL_clearTMR0intFlag();
+    INT_clrTMR0IntFlag();
     (*Timer0_interrupt_callback)();
 }
 

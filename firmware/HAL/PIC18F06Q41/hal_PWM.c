@@ -1,6 +1,6 @@
 #ifdef __PIC18F06Q41__
-
 #include "hal_PWM.h"
+#include <xc.h>
 
 /* With clock source = 1MHz HFINTOSC and period of 256, PWM frequency = 3.91kHz
  */

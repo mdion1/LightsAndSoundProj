@@ -7,9 +7,11 @@
 void HAL_initBoard();
 
 /* ADC */
-void HAL_enableADC();
-void HAL_disableADC();
+void HAL_ADCEnable();
+void HAL_ADCDisable();
 int16_t HAL_ADCReadInternalTemp();
+int16_t HAL_ADCGetConv();
+bool HAL_ADCIsEnabled();
 
 /* Interrupts */
 void HAL_registerADCisr(void (*p_callback)(void));

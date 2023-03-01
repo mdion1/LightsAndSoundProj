@@ -17,7 +17,6 @@
           <logicalFolder name="PIC18F06Q41" displayName="PIC18F06Q41" projectFiles="true">
             <itemPath>../HAL/PIC18F06Q41/device_config.c</itemPath>
             <itemPath>../HAL/PIC18F06Q41/hal_ADC.c</itemPath>
-            <itemPath>../HAL/PIC18F06Q41/hal_init.c</itemPath>
             <itemPath>../HAL/PIC18F06Q41/hal_interrupts.c</itemPath>
             <itemPath>../HAL/PIC18F06Q41/hal_PWM.c</itemPath>
             <itemPath>../HAL/PIC18F06Q41/hal_PWM.h</itemPath>
@@ -27,6 +26,7 @@
             <itemPath>../HAL/PIC18F06Q41/hal_timers.h</itemPath>
             <itemPath>../HAL/PIC18F06Q41/HAL.c</itemPath>
             <itemPath>../HAL/PIC18F06Q41/hal_ADC.h</itemPath>
+            <itemPath>../HAL/PIC18F06Q41/hal_interrupts.h</itemPath>
           </logicalFolder>
           <logicalFolder name="PIC18F67K40" displayName="PIC18F67K40" projectFiles="true">
             <itemPath>../HAL/PIC18F67K40/device_config.c</itemPath>
@@ -50,6 +50,8 @@
           <itemPath>../HelperClasses/LinearRamp.c</itemPath>
           <itemPath>../HelperClasses/HSVtoRGB.c</itemPath>
           <itemPath>../HelperClasses/HSVtoRGB.h</itemPath>
+          <itemPath>../HelperClasses/Int24AccumMath.h</itemPath>
+          <itemPath>../HelperClasses/AmpScalingMath.c</itemPath>
         </logicalFolder>
         <logicalFolder name="StateMachines"
                        displayName="StateMachines"
@@ -64,8 +66,6 @@
           <itemPath>../StateMachines/SignalSampling.h</itemPath>
           <itemPath>../StateMachines/Sleep.c</itemPath>
           <itemPath>../StateMachines/Sleep.h</itemPath>
-          <itemPath>../StateMachines/TaskManager.c</itemPath>
-          <itemPath>../StateMachines/TaskManager.h</itemPath>
         </logicalFolder>
         <itemPath>../main.c</itemPath>
       </logicalFolder>
@@ -89,11 +89,11 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>noID</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>2.31</languageToolchainVersion>
+        <languageToolchainVersion>2.00</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="PIC18F-K_DFP" vendor="Microchip" version="1.4.87"/>
+        <pack name="PIC18F-K_DFP" vendor="Microchip" version="1.5.114"/>
       </packs>
       <ScriptingSettings>
       </ScriptingSettings>
@@ -146,9 +146,9 @@
         <property key="optimization-level" value="-O0"/>
         <property key="optimization-speed" value="false"/>
         <property key="optimization-stable-enable" value="false"/>
-        <property key="pack-struct" value="true"/>
         <property key="preprocess-assembler" value="true"/>
         <property key="short-enums" value="true"/>
+        <property key="tentative-definitions" value=""/>
         <property key="undefine-macros" value=""/>
         <property key="use-cci" value="false"/>
         <property key="use-iar" value="false"/>
@@ -204,6 +204,7 @@
       </HI-TECH-LINK>
       <XC8-CO>
         <property key="coverage-enable" value=""/>
+        <property key="stack-guidance" value="false"/>
       </XC8-CO>
       <XC8-config-global>
         <property key="advanced-elf" value="true"/>
@@ -229,11 +230,11 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>noID</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>2.31</languageToolchainVersion>
+        <languageToolchainVersion>2.41</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="PIC18F-Q_DFP" vendor="Microchip" version="1.8.154"/>
+        <pack name="PIC18F-Q_DFP" vendor="Microchip" version="1.13.211"/>
       </packs>
       <ScriptingSettings>
       </ScriptingSettings>
@@ -268,7 +269,7 @@
         <property key="call-prologues" value="false"/>
         <property key="default-bitfield-type" value="true"/>
         <property key="default-char-type" value="true"/>
-        <property key="define-macros" value="__PIC18F67K40__"/>
+        <property key="define-macros" value="__PIC18F06Q41__"/>
         <property key="disable-optimizations" value="true"/>
         <property key="extra-include-directories" value="..\"/>
         <property key="favor-optimization-for" value="-speed,+space"/>
@@ -286,9 +287,9 @@
         <property key="optimization-level" value="-O0"/>
         <property key="optimization-speed" value="false"/>
         <property key="optimization-stable-enable" value="false"/>
-        <property key="pack-struct" value="true"/>
         <property key="preprocess-assembler" value="true"/>
         <property key="short-enums" value="true"/>
+        <property key="tentative-definitions" value=""/>
         <property key="undefine-macros" value=""/>
         <property key="use-cci" value="false"/>
         <property key="use-iar" value="false"/>
@@ -344,6 +345,7 @@
       </HI-TECH-LINK>
       <XC8-CO>
         <property key="coverage-enable" value=""/>
+        <property key="stack-guidance" value="false"/>
       </XC8-CO>
       <XC8-config-global>
         <property key="advanced-elf" value="true"/>

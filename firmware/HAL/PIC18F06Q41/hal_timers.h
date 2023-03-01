@@ -20,7 +20,7 @@ void TMR_configTMR1();
 void TMR_EnTMR1();
 void TMR_DisTMR1();
 uint16_t TMR_getTMR1Count();
-void TMR_configTMR2(uin8t_t prescaler, uint8_t postscaler, uint8_t period);
+void TMR_configTMR2(uint8_t prescaler, uint8_t postscaler, uint8_t period);
 void TMR_EnTMR2();
 void TMR_DisTMR2();
 

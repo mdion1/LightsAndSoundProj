@@ -19,6 +19,7 @@ void LinRamp_reset(LinRamp_t* pObj);
 void LinRamp_setup(LinRamp_t* pObj, uint16_t start, uint16_t end, uint16_t step);
 void LinRamp_start(LinRamp_t* pObj);
 int LinRamp_getValNow(LinRamp_t* pObj);
+int LinRamp_step(LinRamp_t* pObj);  //todo
 bool LinRamp_isDone(LinRamp_t* pObj);
 
 void LinRamp_incr();

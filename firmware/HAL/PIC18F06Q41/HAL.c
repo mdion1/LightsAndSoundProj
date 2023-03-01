@@ -1,5 +1,6 @@
 #ifdef __PIC18F06Q41__
 #include "../HAL.h"
+#include <xc.h>
 #include "hal_ADC.h"
 #include "hal_interrupts.h"
 #include "hal_PWM.h"
@@ -44,18 +45,28 @@ void prepForSleep()
 }
 
 /* ADC */
-void HAL_enableADC()
+void HAL_ADCEnable()
 {
     //enable ADC, enable interrupts, enable timer
     
 }
 
-void HAL_disableADC()
+void HAL_ADCDisable()
 {
     //disable ADC, disable interrupts, disable timer
 }
 
 int16_t HAL_ADCReadInternalTemp()
+{
+    //todo
+}
+
+int16_t HAL_ADCGetConv()
+{
+    return ADC_getConv();
+}
+
+bool HAL_ADCIsEnabled()
 {
     
 }
@@ -63,26 +74,26 @@ int16_t HAL_ADCReadInternalTemp()
 /* Interrupts */
 void HAL_registerADCisr(void (*p_callback)(void))
 {
-    
+    INT_registerADCISRCallback(p_callback);
 }
 
 void HAL_registerSleepTimerISR(void (*p_callback)(void))
 {
-    INT_registerTMR0ISR(p_callback);
+    INT_resisterTMR0ISRCallback(p_callback);
 }
 
 /* Sleep */
-void HAL_setWakeOnTimer(uint8_t timerPeriod)
+void HAL_setWakeOnTimer(uint8_t timerPeriod)    /*! \todo timerPeriod is unused */
 {
     /* Enable TMR0 + interrupts */
-    INT_ClearTMR0IntFlag();
-    INT_EnTMR0Int();
+    INT_clrTMR0IntFlag();
+    INT_EnTMR0Int(true);
     TMR_EnTMR0();
 }
 
 void HAL_setWakeOnADC()
 {
-    INT_EnADCInt();
+    INT_EnADCInt(true);
 }
 
 void HAL_sleep()

@@ -113,11 +113,16 @@ class textFmt:
             
 
         # Period
-        period = round(PIC18F_BASE_TIMER_FREQ / targetFSamp / postscale / (2**log2Prescale))
+        period = round(PIC18F_BASE_TIMER_FREQ / targetFSamp / postscale / (2**log2Prescale))        # todo: this is outputting values > 255
 
         self.log2Prescale = log2Prescale
         self.postscale = postscale
         self.period = period
+
+        # Calculate sample averaging and LED brightness update rates
+        TargetRefreshRate = 30  # in Hz
+        self.NCyclesPerRefresh = round(self.note.getFreq() / TargetRefreshRate)
+        self.FourierSumArrayLen = math.ceil(NCyclesSampled / self.NCyclesPerRefresh)
         return
 
     def toStr(self) -> str:
@@ -160,6 +165,10 @@ class textFmt:
                     + '#define CYCLE_SUM_ARRAY_LEN {}\n'.format(self.CycleSumArrayLen)  \
                     + '#define CYCLE_SUM_RIGHTSHIFT {}\n'.format(self.CycleSumRightShift)
 
+        # Add macros for LED update rate
+        outStr += '#define LED_REFRESH_INTERVAL {}  // Number of signal periods per LED update calculation\n'.format(self.NCyclesPerRefresh)      \
+                    + '#define FOURIER_ACCUM_BUFLEN {}      //\n'.format(self.FourierSumArrayLen)    \
+
         outStr += '\n#endif // (#ifdef __NOTE_{}__)'.format(self.note.toStr())
         return outStr
 
@@ -179,8 +188,8 @@ def main():
 
     print(outStr)
 
-    with open("SamplingParams.h", "w") as text_file:
-        text_file.write(outStr)
+    #with open("SamplingParams.h", "w") as text_file:
+    #    text_file.write(outStr)
 
 
 

@@ -3,19 +3,22 @@
 #include "SamplingParams.h"
 #include "HelperClasses/WindowAvg.h"
 
+#define N_SAMPLES_PER_REFRESH 8
+#define N_CYCLES_PER_REFRESH 2
+#define FOURIER_SUM_ARRAY_LEN 64
+#define TRIG_LOOKUP_TABLE_LEN 4     // must equal 4
+
 /* Private variable declarations */
 
 // Raw buffers for averaging/summing
-int16_t sinSumBuf[POST_FILT_SUM_LEN];
-int16_t cosSumBuf[POST_FILT_SUM_LEN];
+/*! \todo If math optimization is needed, int16 or int24 can be used instead of int32 */
+int32_t FourierSumSin[FOURIER_SUM_ARRAY_LEN];
+int32_t FourierSumCos[FOURIER_SUM_ARRAY_LEN];
 
 //State machine
 static struct
 {
-    //partially-filled buffer
-    int16_t sumSin;     //int16's can hold 32*(4 sample cycles * trig table coefficients) = 128 ADC samples
-    int16_t sumCos;
-    uint16_t sumCnt;
+    uint16_t idxProcessed; /*! \todo can idxProcessed be a uint8_t? */
     
     // Averaging/summing
     WndAvg_t avgSin;
@@ -27,21 +30,19 @@ static struct
 
 /* Private function declarations */
 void resetSums();   // Reset index and sums
-uint16_t fastSqrt(int32_t x);
 
 /* Public function definitions */
 
 void SigAnalysis_init()
 {
-    WndAvg_init(&SM.avgSin, sinSumBuf, POST_FILT_SUM_LEN);
-    WndAvg_init(&SM.avgCos, cosSumBuf, POST_FILT_SUM_LEN);
+    WndAvg_init(&SM.avgSin, FourierSumSin, FOURIER_SUM_ARRAY_LEN);
+    WndAvg_init(&SM.avgCos, FourierSumCos, FOURIER_SUM_ARRAY_LEN);
     
     SigAnalysis_reset();
 }
 
 void SigAnalysis_reset()
 {
-    SM.sigStrength = 0;
     resetSums();
     WndAvg_clear(&SM.avgSin);
     WndAvg_clear(&SM.avgCos);
@@ -58,30 +59,26 @@ void SigAnalysis_tasks()
      */
     
     /* Process new samples in groups of 4 */
-    uint16_t newSmpGroups = (SigSamp_getNumSamples() - SM.sumCnt) / 4;
-    for (uint16_t i = 0; i < newSmpGroups; i++)
+    uint16_t NTotalSamples = SigSamp_getNumSamples();
+    while (NTotalSamples - SM.idxProcessed >= 4)
     {
-        const int16_t* buf = &SigSamp_getSampBuf()[SM.sumCnt];
-        // 2-bit sine lookup table = {0, 1, 0, -1}
-        // 2-bit cosine lookup table = {1, 0, -1, 0}
-        SM.sumSin += buf[1] - buf[3];
-        SM.sumCos += buf[0] - buf[2];
-        SM.sumCnt += 4;
+        const int16_t* buf = &SigSamp_getSampBuf()[SM.idxProcessed];
+        /** 2-bit sine lookup table = {0, 1, 0, -1}
+         *  2-bit cosine lookup table = {1, 0, -1, 0}
+         */
+        int16_t sumSin = buf[1] - buf[3];
+        int16_t sumCos = buf[0] - buf[2];
+        
+        SM.idxProcessed += 4;
+        WndAvg_pushVal(&SM.avgSin, sumSin);     /*! \todo: what are the minimum sizes for the WndAvg_pushVal() input arguments? */
+        WndAvg_pushVal(&SM.avgCos, sumCos);
     }
+}
 
-    // Post-averaging and signal strength calculations
-    if (SM.sumCnt >= SAMPLE_BUF_SIZE)
-    {
-        // Push sums into WindowAvg buffers
-        //TODO: MAKE SURE THE SCALING IS CORRECT WITHOUT TRUNCATING BITS!!
-        int16_t avgIm = WndAvg_pushVal(&SM.avgSin, SM.sumSin) >> CYCLE_SUM_RIGHTSHIFT;
-        int16_t avgRe = WndAvg_pushVal(&SM.avgSin, SM.sumCos) >> CYCLE_SUM_RIGHTSHIFT;
-        
-        // todo: fast sqrt??
-        SM.sigStrength = avgIm * avgIm + avgRe * avgRe;     // calculate abs(Re,Im)
-        
-        resetSums();
-    }
+void SigAnalysis_getSigStr(int32_t* pSinOut, int32_t* pCosOut)
+{
+    *pSinOut = WndAvg_getSum(&SM.avgSin);
+    *pCosOut = WndAvg_getSum(&SM.avgCos);
 }
 
 /* Private function definitions */
@@ -89,13 +86,5 @@ void SigAnalysis_tasks()
 void resetSums()
 {
     // Reset index and sums
-    SM.sumCnt = 0;
-    SM.sumCos = 0;
-    SM.sumSin = 0;
-}
-
-uint16_t fastSqrt(int32_t x)
-{
-    //todo
-    return 0;
+    SM.idxProcessed = 0;
 }
