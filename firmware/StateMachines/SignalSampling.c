@@ -58,9 +58,15 @@ void SigSamp_tasks()
     HAL_globalIntEn();
 }
 
-uint16_t SigSamp_getNumSamples()
+uint8_t SigSamp_getNumSamples()
 {
     return SM.headIdxCpy;
+}
+
+uint16_t SigSamp_getTimebase()
+{
+    /*! \todo document timebase theory/calculations */
+    
 }
 
 const int16_t* SigSamp_getSampBuf()

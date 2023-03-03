@@ -13,7 +13,7 @@ def main():
     # Build system from transfer function blocks
     TARGET_FREQ = 263
     RELATIVE_FSAMP = 4
-    NUM_CYCLES_SAMPLED = 32
+    NUM_CYCLES_SAMPLED = 6
     LPF_CORNER_FREQ = 512   # in Hz
     HPF_CORNER_FREQ = 128   # in Hz
     signalChain: List["TransferFn"] = []
@@ -25,7 +25,7 @@ def main():
     # create list of input frequencies to test
     CHROM_STEP = math.pow(2, 1/12)
     
-    NUM_CHROM_STEPS = 1     #Number of chromatic steps in either direction
+    NUM_CHROM_STEPS = 8     #Number of chromatic steps in either direction
     SWEEP_RES = 80
 
     chromStepList = np.append(

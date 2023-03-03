@@ -3,28 +3,90 @@
 #define MASK_LSB_START 0x7fff
 #define GAMMA_LEFTSHIFT 5
 
-static const uint8_t gammaLookup;
+#define LOG_TABLE_LEN 64
+#define LOG2_SCALING 
+
+static const uint8_t NLog2Lookup;
+
+static uint32_t abs32(int32_t x)
+{
+    // does NOT check for an input value of 0x80000000
+    return (x < 0) ? -x : x;
+}
+
+static uint16_t square8(uint8_t a) {
+    return a * a;
+}
+
+static uint16_t mult8x8(uint8_t a, uint8_t b) {
+    return a * b;
+}
 
 
+void foo(int32_t sin, int32_t cos, uint8_t numCycles)
+{
+    // assumes inputs of 18bits + sign bit
+    // right-shift 18 bits down to 8 bits, do an 8x8 multiply
+    uint16_t sin2 = square8(abs32(sin) >> 10);
+    uint16_t cos2 = square8(abs32(cos) >> 10);
+    
+    // divide by two to prevent overflow, then add. Result is 16 bits max.
+    uint16_t mag2 = (sin2 >> 1) + (cos2 >> 1);
+    
+    uint16_t NLogMag = Nlog2(mag2);
+    
+    // todo: now scale log(amp) based on the number of cycles used from the filter/buffer (so there doesn't need to be amplitude rollup @ startup)
+    // for example, subtract a number proportional to the number of samples in the buffer, so that for a low number of cycles log(N) doesn't decrease much
+    // (essentially what we're doing is:
+    //          log(Amp *64 / NumCycles) = log(amp) + const - log(numCycles)
+    //                                   = log(amp) + const - log(numCycles*scalar) + log(scalar)   (where scalar is added to reduce rounding error)
+    
+    uint16_t LogNumCycles = Nlog2(numCycles << SCALAR_FOR_ROUNDING) - SCALAR_FOR_ROUNDING*N; //todo: do I need to bitshift this some amount
+    
+    
+    // now calculate scalarB * 2 ^ (N log2(Amp))
+    uint8_t newLEDval = NPow2(NLogMag - LogNumCycles + NUM_CYCLES_OFFSET);
+    
+    
+}
 
-void Gamma(uint16_t val)
+
+/* returns base2 logarithm multiplied by N (where N is defined in some macro???) */
+uint16_t Nlog2(uint16_t val)
 {
     uint16_t maskMSB = 0x8000;
     uint16_t maskLSB = MASK_LSB_START;
     
-    int msb = 15;
-    int lsb = 0;
+    uint16_t msb = 15;
+    uint16_t lsb = 0;
+
+    /*! \todo look for "count trailing zeroes" and "count leading zeroes" assembly instruction! */
     while (msb)
     {
         if(val & maskMSB) {
-            lsb = gammaLookup[val & maskLSB];
+            lsb = NLog2Lookup[val & maskLSB];
             break;
         }
         msb--;
+        maskMSB >>= 1;
+        maskLSB >>= 1;
     }
-    return (msb << GAMMA_LEFTSHIFT) + lsb;
+    return (msb << GAMMA_LEFTSHIFT) + lsb;      // todo GAMMA_LEFTSHIFT is related to the "N" here
 }
 
-static const uint8_t gammaLookup[GAMMALOOKUP_LEN] = {
+uint16_t NPow2(uint16_t val)
+{
+
+    uint16_t maskMSB = (0x0f << GAMMA_LEFTSHIFT);
+    uint16_t maskLSB = 0x00f0;      //this is just a placeholder
     
+    return (1 << (val & maskMSB)) + NPow2Lookup[val & maskLSB];
+}
+
+static const uint16_t NLog2Lookup[GAMMALOOKUP_LEN] = {
+    //...
+};
+
+static const uint16_t NPow2Lookup[GAMMALOOKUP_LEN] = {
+//...
 };

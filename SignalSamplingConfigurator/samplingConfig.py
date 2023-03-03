@@ -1,14 +1,25 @@
 from typing import Dict, List
 import math
+import numpy as np
+
+# TODO: DOCUMENT ALL YOUR SAMPLING THEORY/ASSUMPTIONS/EQUATIONS !!!!
 
 #set global parameters
 RELATIVE_FSAMP = 4
+NUM_PERIODS_SUMMED = 64     # number of periods (of the target frequency) evaluated in the fourier sum
 PIC18F_BASE_TIMER_FREQ = 1e6
 MAX_CYCLES_PER_16B_SUM = 32     # For unsigned 10-bit ADC conversions, with a 4-entry sin/cos lookup table,
                                 # each cycle sums to +-1023 (10-bits + sign bit). 32 cycles sums to +-32736
                                 # ( 15-bits + sign bit)
 PIC18F_TIMER_MAX_POSTSCALE = 16
-PIC18F_TIMER_MAX_PERIOD = 256    
+PIC18F_TIMER_MAX_PERIOD = 256
+
+# Task intervals
+LED_REFRESH_RATE = 30  # in Hz
+WAKE_TEST_SAMPLING_PERIOD = 0.1 # in seconds. Approximate period of time the signal is evaluated to see if the
+                                # amplitude is above some minimum threshold, below which the controller
+                                # enters deep sleep mode
+
 
 class Note:
 
@@ -65,17 +76,20 @@ class Note:
         return self._freq
 
 class textFmt:
-    def __init__(self, note: Note, relativeFSamp: int, NCyclesSampled: int):
+    def __init__(self, note: Note):
         global PIC18F_TIMER_MAX_POSTSCALE
         global PIC18F_TIMER_MAX_PERIOD
         global PIC18F_BASE_TIMER_FREQ
         global MAX_CYCLES_PER_16B_SUM
+        global LED_REFRESH_RATE
+        global WAKE_TEST_SAMPLING_PERIOD
+        global NUM_PERIODS_SUMMED
 
         self.note = note
-        self.FSampRel = relativeFSamp
-        self.NCyclesSampled = NCyclesSampled
-        self.NCyclesSummed16b = min(NCyclesSampled, MAX_CYCLES_PER_16B_SUM)
-        self.CycleSumArrayLen = math.ceil(NCyclesSampled / self.NCyclesSummed16b)
+        self.FSampRel = RELATIVE_FSAMP
+        self.NCyclesSampled = NUM_PERIODS_SUMMED        #todo RENAME!
+        self.NCyclesSummed16b = min(self.NCyclesSampled, MAX_CYCLES_PER_16B_SUM)
+        self.CycleSumArrayLen = math.ceil(self.NCyclesSampled / self.NCyclesSummed16b)
         self.CycleSumRightShift = 8        #TODO calculate an appropriate number!!!
 
         # Calculations for an 8-bit timer with a prescaler and postscaler
@@ -93,11 +107,12 @@ class textFmt:
 
         # Prescaler, postscaler
         fSig = note.getFreq()
-        targetFSamp = relativeFSamp * fSig
+        TSig = 1.0 / fSig
+        targetFSamp = self.FSampRel * fSig
         log2Prescale = 0
         postscale = 1
         while True:
-            postscale = max(1, math.floor(PIC18F_BASE_TIMER_FREQ / targetFSamp / PIC18F_TIMER_MAX_PERIOD / 2**log2Prescale))
+            postscale = math.ceil(PIC18F_BASE_TIMER_FREQ / targetFSamp / PIC18F_TIMER_MAX_PERIOD / 2**log2Prescale)
             if postscale > PIC18F_TIMER_MAX_POSTSCALE:
                 log2Prescale += 1
                 if log2Prescale > 3:        # max prescaler is 2^3 = 8
@@ -120,9 +135,14 @@ class textFmt:
         self.period = period
 
         # Calculate sample averaging and LED brightness update rates
-        TargetRefreshRate = 30  # in Hz
-        self.NCyclesPerRefresh = round(self.note.getFreq() / TargetRefreshRate)
-        self.FourierSumArrayLen = math.ceil(NCyclesSampled / self.NCyclesPerRefresh)
+        self.NCyclesPerRefresh = round(self.note.getFreq() / LED_REFRESH_RATE)
+        self.FourierSumArrayLen = math.ceil(self.NCyclesSampled / self.NCyclesPerRefresh)
+
+        # Calculate wake test sampling interval
+        wakeTestSampPeriod = min(WAKE_TEST_SAMPLING_PERIOD, self.NCyclesSampled * TSig)      # wakeTestSampPeriod should not exceed (Ncycles * signal period)
+        self.NCyclesPerWakeSampPeriod = round(wakeTestSampPeriod / TSig)
+        
+
         return
 
     def toStr(self) -> str:
@@ -161,16 +181,30 @@ class textFmt:
                     + '#define TSAMP_PERIOD {}        //sampling period = N+1\n'.format(self.period)
 
         # Add macros for sample summing/analysis
-        outStr += '#define N_CYCLES_SUMMED_16b {}\n'.format(self.NCyclesSummed16b)      \
-                    + '#define CYCLE_SUM_ARRAY_LEN {}\n'.format(self.CycleSumArrayLen)  \
-                    + '#define CYCLE_SUM_RIGHTSHIFT {}\n'.format(self.CycleSumRightShift)
+        # outStr += '#define N_CYCLES_SUMMED_16b {}\n'.format(self.NCyclesSummed16b)      \
+        #             + '#define CYCLE_SUM_ARRAY_LEN {}\n'.format(self.CycleSumArrayLen)  \
+        #             + '#define CYCLE_SUM_RIGHTSHIFT {}\n'.format(self.CycleSumRightShift)
 
         # Add macros for LED update rate
-        outStr += '#define LED_REFRESH_INTERVAL {}  // Number of signal periods per LED update calculation\n'.format(self.NCyclesPerRefresh)      \
-                    + '#define FOURIER_ACCUM_BUFLEN {}      //\n'.format(self.FourierSumArrayLen)    \
+        outStr += '#define LED_REFRESH_INTERVAL {}  // Number of signal periods per LED update calculation\n'.format(self.NCyclesPerRefresh)
+        #            + '#define FOURIER_ACCUM_BUFLEN {}      //\n'.format(self.FourierSumArrayLen)    \
+
+        # Add macros for sleep tasks update interval
+        outStr += '#define SLEEP_TASKS_UPDATE_INTERVAL {}  // Number of signal periods evaluated in sleep tasks calculation\n'.format(self.NCyclesPerWakeSampPeriod)
 
         outStr += '\n#endif // (#ifdef __NOTE_{}__)'.format(self.note.toStr())
         return outStr
+    
+    def gammaFn_toStr():
+        LUT_BIT_DEPTH = 6
+        LUT_LEN = 2**LUT_BIT_DEPTH
+
+        idx = np.array(range(0, LUT_LEN))
+        idx = idx + LUT_LEN
+        gammaLUT = np.round((np.log2(idx) - math.log2(LUT_LEN)) * LUT_LEN)
+        return gammaLUT
+
+
 
 def main():
     global RELATIVE_FSAMP
@@ -181,15 +215,20 @@ def main():
 
     # todo: includes, other comments at top
 
+    textFmt(Note(0, 4))     #debugging with middle c
+    textFmt.gammaFn_toStr()
+
     for octave in range(octaveStart, octaveStart + numOctaves):
         for idx in Note.NoteList.keys():
-            formattedTextObj = textFmt(Note(idx, octave), RELATIVE_FSAMP, 128)
-            outStr += formattedTextObj.toStr() + '\n\n'
+            outStr += textFmt(Note(idx, octave)).toStr() + '\n\n'
 
-    print(outStr)
+    #todo: add on C6
+    outStr += textFmt(Note(0, 6)).toStr() + '\n\n'
 
-    #with open("SamplingParams.h", "w") as text_file:
-    #    text_file.write(outStr)
+    #print(outStr)
+
+    with open("SamplingParams.h", "w") as text_file:
+        text_file.write(outStr)
 
 
 

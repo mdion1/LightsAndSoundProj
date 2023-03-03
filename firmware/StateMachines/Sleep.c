@@ -1,5 +1,10 @@
+#include "Sleep.h"
+#include "SamplingParams.h"
+#include "SignalSampling.h"
+#define SIGNAL_STRENGTH_CUTOFF 1234 /*! \todo move this into SamplingParams.h */
+
 /* Private variable declarations */
-static typedef enum {
+typedef enum {
     DEEPSLEEP_MIN = 0,
     DEEPSLEEP_100ms,
     DEEPSLEEP_200ms,
@@ -17,7 +22,7 @@ static typedef enum {
 static struct
 {
     deepSleepDur_t deepSleepDur;
-    uint16_t sampPrev;
+    uint16_t t_prev;
     int lowSigCnt;
 }SM;
 
@@ -27,18 +32,16 @@ static struct
 /* Public function definitions */
 void Sleep_tasks()
 {
-    uint16_t NTotalSamples = SigSamp_getNumSamples();
-        
-    if (NTotalSamples - SM.sampPrev < SLEEP_TASK_INTERVAL) {
+    uint16_t timebase = SigSamp_getTimebase();
+    if (timebase - SM.t_prev < SLEEP_TASKS_UPDATE_INTERVAL) {
         return;
     }
-        
-    SM.sampPrev = NTotalSamples;        /*! \todo what about sample index reset/wraparound? Use a different SigSamp getter? */
+    SM.t_prev = timebase;
         
         
         //////////////////// 
     /* If signal strength is below threshold for too long, increment the deep sleep duration */
-    if (SigAnalysis_getSigStr() < SIG_STR_CUTOFF)
+    if (SigAnalysis_getSigStr() < SIGNAL_STRENGTH_CUTOFF)
     {
         SM.lowSigCnt++;
         if (SM.lowSigCnt >= LOWSIG_THRESH_CNT_MAX)

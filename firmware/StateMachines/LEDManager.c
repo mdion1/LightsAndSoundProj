@@ -2,6 +2,8 @@
 #include "../HelperClasses/HSVtoRGB.h"
 #include "../HelperClasses/LinearRamp.h"
 #include "SamplingParams.h"
+#include "SignalSampling.h"
+#include "../HAL/HAL.h"
 
 /* Private variable declarations */
 #define RAMP_UPDATE_INT 1       // in milliseconds
@@ -13,6 +15,7 @@ static struct
     RGB_t led;
     LinRamp_t hueRamp;
     LinRamp_t satRamp;
+    uint16_t tPrev;
 }SM;
 
 /* Private function declarations */
@@ -35,13 +38,13 @@ void LEDMgr_tasks()
     //convert SigLvl to BrtLvl, average
     //check if BrtLvl and SigLvl are below threshold, turn off and raise "off" event
     //todo: need on/off state hysteresis variables/delays (OR put the delays in the Sleep module logic!)
-    uint16_t NTotalSamples = SigSamp_getNumSamples();
+    uint16_t timebase = SigSamp_getTimebase();
 
-    if (NTotalSamples - SM.sampPrev < LED_TASK_INTERVAL) {
+    if (timebase - SM.tPrev < LED_REFRESH_INTERVAL) {
         return;
     }
 
-    SM.sampPrev = NTotalSamples;        /*! \todo what about sample index reset/wraparound? Use a different SigSamp getter? */
+    SM.tPrev = timebase;        /*! \todo what about sample index reset/wraparound? Use a different SigSamp getter? */
 
     int32_t SigStrSin, SigStrCos;
     SigAnalysis_getSigStr(&SigStrSin, &SigStrCos);
@@ -50,16 +53,16 @@ void LEDMgr_tasks()
     uint8_t valFiltered = LPF_pushVal(sigStrNorm);
 
     // Increment hue and saturation ramp
-    uint8_t hueNext = LinRamp_step(&SM.rampHue);
-    uint8_t satNext = LinRamp_step(&SM.rampSat);
+    uint8_t hueNext = LinRamp_step(&SM.hueRamp);
+    uint8_t satNext = LinRamp_step(&SM.satRamp);
 
     // Combine updated hue/sat/val to calculate next RGB value
     RGB_t RGBNext = HSVtoRGB(hueNext, satNext, valFiltered);
     HAL_setPWM(RGBNext.R, RGBNext.G, RGBNext.B);
 
     // Check for completed color ramp
-    if (LinRamp_isDone(&SM.rampHue)
-        && LinRamp_isDone(&SM.rampSat)
+    if (LinRamp_isDone(&SM.hueRamp)
+        && LinRamp_isDone(&SM.satRamp)
     )
     {
         // initialize next ramp to random color
