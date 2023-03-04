@@ -1,12 +1,15 @@
 #include "LEDManager.h"
 #include "../HelperClasses/HSVtoRGB.h"
 #include "../HelperClasses/LinearRamp.h"
+#include "../HelperClasses/AmpScalingMath.h"
 #include "SamplingParams.h"
 #include "SignalSampling.h"
+#include "SignalAnalysis.h"
 #include "../HAL/HAL.h"
 
 /* Private variable declarations */
-#define RAMP_UPDATE_INT 1       // in milliseconds
+#define N_STEPS_PER_RAMP 120   /*! With an LED update interval of ~(1 / 30) = 33ms, a ramp duration
+                                *  of 4 seconds works out to 4s * 30Hz = 120 update intervals. */
 
 //State machine
 static struct
@@ -18,16 +21,16 @@ static struct
     uint16_t tPrev;
 }SM;
 
+static uint16_t LPFsum = 0;
+
 /* Private function declarations */
 static void onRampComplete();
-static int32_t gammaFunction(int32_t sumSin, int32_t sumCos);
-static void LPF_pushVal(int32_t val);
+static uint16_t LPF_pushVal(uint16_t val);
 
 /* Public function definitions */
 void LEDMgr_init()
 {
-    LinRamp_init(&SM.hueRamp);
-    LinRamp_init(&SM.satRamp);
+
 
     //todo: init State machine
 }
@@ -47,14 +50,16 @@ void LEDMgr_tasks()
     SM.tPrev = timebase;        /*! \todo what about sample index reset/wraparound? Use a different SigSamp getter? */
 
     int32_t SigStrSin, SigStrCos;
-    SigAnalysis_getSigStr(&SigStrSin, &SigStrCos);
+    uint8_t numCycles;
+    SigAnalysis_getSigStr(&SigStrSin, &SigStrCos, &numCycles);
+    
+    uint16_t newBrightnessVal = AmpToBrightness(SigStrSin, SigStrCos, numCycles);
 
-    int32_t sigStrNorm = gammaFunction(SigStrSin, SigStrCos);
-    uint8_t valFiltered = LPF_pushVal(sigStrNorm);
+    uint8_t valFiltered = LPF_pushVal(newBrightnessVal) >> 8;
 
     // Increment hue and saturation ramp
-    uint8_t hueNext = LinRamp_step(&SM.hueRamp);
-    uint8_t satNext = LinRamp_step(&SM.satRamp);
+    uint8_t hueNext = LinRamp_incr(&SM.hueRamp);
+    uint8_t satNext = LinRamp_incr(&SM.satRamp);
 
     // Combine updated hue/sat/val to calculate next RGB value
     RGB_t RGBNext = HSVtoRGB(hueNext, satNext, valFiltered);
@@ -72,12 +77,33 @@ void LEDMgr_tasks()
 }
 
 /* Private function definitions */
-void onRampComplete()
+static void onRampComplete()
 {
     //get random color, init ramp
     uint8_t hueRand;
     uint8_t satRand;    //get rand uint8
     
-    LinRamp_setup(&SM.hueRamp, hueRand, RAMP_UPDATE_INT);
-    LinRamp_setup(&SM.satRamp, satRand, RAMP_UPDATE_INT);
+    /* Calculate step size */
+    
+    
+    LinRamp_setup(&SM.hueRamp, hueRand, N_STEPS_PER_RAMP);
+    LinRamp_setup(&SM.satRamp, satRand, N_STEPS_PER_RAMP);
+}
+
+static uint16_t LPF_pushVal(uint16_t x)
+{
+    /* Low-pass exponential filter:
+     *      y_new = (1 - alpha) * y + alpha * x
+     *            = (((1 / alpha) - 1) * y + x) * alpha
+     * 
+     * If we store the filter sum as y_new / alpha for better resolution:
+     *      Y = y / alpha
+     *      Y_new = Y - alpha * Y + x
+     * 
+     * For an LED refresh rate of ~30Hz, an alpha value of 1/8 works out to a
+     * filter corner frequency of ~4Hz.
+     */
+    LPFsum += x - (LPFsum >> 3);
+    
+    return (LPFsum + 4) >> 3;  // add 4 to round up
 }

@@ -1,6 +1,8 @@
 #include "Sleep.h"
 #include "SamplingParams.h"
 #include "SignalSampling.h"
+#include "SignalAnalysis.h"
+#include "../HelperClasses/AmpScalingMath.h"
 #define SIGNAL_STRENGTH_CUTOFF 1234 /*! \todo move this into SamplingParams.h */
 
 /* Private variable declarations */
@@ -27,7 +29,9 @@ static struct
 }SM;
 
 /* Private function declarations */
-
+static void initDeepSleep();
+static void initSleepWhileSampling();
+static void onDeepSleepWake();
 
 /* Public function definitions */
 void Sleep_tasks()
@@ -41,7 +45,11 @@ void Sleep_tasks()
         
         //////////////////// 
     /* If signal strength is below threshold for too long, increment the deep sleep duration */
-    if (SigAnalysis_getSigStr() < SIGNAL_STRENGTH_CUTOFF)
+    int32_t SigStrSin, SigStrCos;
+    uint8_t numCycles;
+    SigAnalysis_getSigStr(&SigStrSin, &SigStrCos, &numCycles);
+    uint16_t newBrightnessVal = AmpToBrightness(SigStrSin, SigStrCos, numCycles);
+    if (newBrightnessVal < SIGNAL_STRENGTH_CUTOFF)
     {
         SM.lowSigCnt++;
         if (SM.lowSigCnt >= LOWSIG_THRESH_CNT_MAX)
@@ -76,7 +84,7 @@ void Sleep_tasks()
 
 
 /* Private function definitions */
-void initDeepSleep()
+static void initDeepSleep()
 {
     switch (SM.deepSleepDur)
     {
@@ -98,13 +106,13 @@ void initDeepSleep()
     // set timer duration
 }
 
-void initSleepWhileSampling()
+static void initSleepWhileSampling()
 {
     // set wake trigger
 
 }
 
-void onDeepSleepWake()
+static void onDeepSleepWake()
 {
     // Turn on analog front end, wait for warmup (blocking wait)
     //...

@@ -52,6 +52,7 @@
           <itemPath>../HelperClasses/HSVtoRGB.h</itemPath>
           <itemPath>../HelperClasses/Int24AccumMath.h</itemPath>
           <itemPath>../HelperClasses/AmpScalingMath.c</itemPath>
+          <itemPath>../HelperClasses/AmpScalingMath.h</itemPath>
         </logicalFolder>
         <logicalFolder name="StateMachines"
                        displayName="StateMachines"

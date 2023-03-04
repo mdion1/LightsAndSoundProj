@@ -1,3 +1,28 @@
+#include "AmpScalingMath.h"
+
+/* Private function declarations */
+static uint32_t abs32(int32_t x);
+static uint16_t square8(uint8_t a);
+static uint16_t mult8x8(uint8_t a, uint8_t b);
+
+#ifndef OPTIMIZE_LATER_NOT_NOW
+#include <math.h>
+
+uint16_t AmpToBrightness(int32_t sin, int32_t cos, uint8_t numCycles)
+{
+    // assumes inputs of 18bits + sign bit
+    // right-shift 18 bits down to 8 bits, do an 8x8 multiply
+    uint16_t sin2 = square8(abs32(sin) >> 10);
+    uint16_t cos2 = square8(abs32(cos) >> 10);
+    
+    // divide by two to prevent overflow, then add. Result is 16 bits max.
+    uint16_t mag2 = (sin2 >> 1) + (cos2 >> 1);
+    
+    const float scalar = 1.234;
+    return roundf(scalar * sqrtf(mag2) / numCycles);
+}
+
+#else
 
 #define GAMMALOOKUP_LEN 64
 #define MASK_LSB_START 0x7fff
@@ -8,22 +33,10 @@
 
 static const uint8_t NLog2Lookup;
 
-static uint32_t abs32(int32_t x)
-{
-    // does NOT check for an input value of 0x80000000
-    return (x < 0) ? -x : x;
-}
-
-static uint16_t square8(uint8_t a) {
-    return a * a;
-}
-
-static uint16_t mult8x8(uint8_t a, uint8_t b) {
-    return a * b;
-}
 
 
-void foo(int32_t sin, int32_t cos, uint8_t numCycles)
+
+uint16_t AmpToBrightness(int32_t sin, int32_t cos, uint8_t numCycles)
 {
     // assumes inputs of 18bits + sign bit
     // right-shift 18 bits down to 8 bits, do an 8x8 multiply
@@ -90,3 +103,20 @@ static const uint16_t NLog2Lookup[GAMMALOOKUP_LEN] = {
 static const uint16_t NPow2Lookup[GAMMALOOKUP_LEN] = {
 //...
 };
+
+#endif
+
+/* Private function definitions */
+static uint32_t abs32(int32_t x)
+{
+    // does NOT check for an input value of 0x80000000
+    return (x < 0) ? -x : x;
+}
+
+static uint16_t square8(uint8_t a) {
+    return a * a;
+}
+
+static uint16_t mult8x8(uint8_t a, uint8_t b) {
+    return a * b;
+}

@@ -12,8 +12,8 @@
 
 // Raw buffers for averaging/summing
 /*! \todo If math optimization is needed, int16 or int24 can be used instead of int32 */
-int32_t FourierSumSin[FOURIER_SUM_ARRAY_LEN];
-int32_t FourierSumCos[FOURIER_SUM_ARRAY_LEN];
+int16_t FourierSumSin[FOURIER_SUM_ARRAY_LEN];
+int16_t FourierSumCos[FOURIER_SUM_ARRAY_LEN];
 
 //State machine
 static struct
@@ -24,8 +24,6 @@ static struct
     WndAvg_t avgSin;
     WndAvg_t avgCos;
 
-    //newest signal strength data
-    uint16_t sigStrength;
 }SM;
 
 /* Private function declarations */
@@ -75,10 +73,11 @@ void SigAnalysis_tasks()
     }
 }
 
-void SigAnalysis_getSigStr(int32_t* pSinOut, int32_t* pCosOut)
+void SigAnalysis_getSigStr(int32_t* pSinOut, int32_t* pCosOut, uint8_t* numCycles)
 {
     *pSinOut = WndAvg_getSum(&SM.avgSin);
     *pCosOut = WndAvg_getSum(&SM.avgCos);
+    *numCycles = SM.idxProcessed >> 2;
 }
 
 /* Private function definitions */

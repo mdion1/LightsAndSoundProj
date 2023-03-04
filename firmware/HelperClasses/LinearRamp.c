@@ -1,49 +1,53 @@
 #include "LinearRamp.h"
 
-/*typedef struct
-{
-    int start;
-    int end;
-    int t_start;
-    int step_dt;
-    bool b_active;
-    bool b_done;
-}LinRamp_t;*/
 
-/* Private variable declarations */
+#define N_STEPS_PER_RAMP 128   /*! With an LED update interval of ~(1 / 30) = 33ms, a ramp duration
+                                *  of 4.27 seconds works out to 4.27s * 30Hz = 128 update intervals. */
 
 
 /* Private function declarations */
-
+static uint16_t min_u16(uint16_t a, uint16_t b);
+static uint16_t max_u16(uint16_t a, uint16_t b);
 
 /* Public function definitions */
 
-void LinRamp_init(LinRamp_t* pObj)
-{
-    
-}
-
-void LinRamp_reset(LinRamp_t* pObj);
-void LinRamp_setup(LinRamp_t* pObj, uint16_t start, uint16_t end, uint16_t step)
+void LinRamp_setup(LinRamp_t* pObj, uint8_t start, uint8_t end)
 {
     pObj->b_done = false;
-    pObj->start = start;
-    pObj->now = now;
-    pObj->end = end;
-    pObj->step = step;
+    pObj->start = pObj->now = start << 8;
+    pObj->end = end << 8;
+    pObj->step = (pObj->end - pObj->start) / N_STEPS_PER_RAMP;      // Divide by 128 should compile into >> 7
 }
 
-void LinRamp_start(LinRamp_t* pObj);
-int LinRamp_getValNow(LinRamp_t* pObj);
-bool LinRamp_isDone(LinRamp_t* pObj);
-
-void LinRamp_incr(:inRamp_t* pObj)
+uint8_t LinRamp_incr(LinRamp_t* pObj)
 {
-    
-    pObj->now += pObj->step;
-    
-    if (pObj->now < pObj// check overflow
-    if (pObj->end - pObj->step)
+    if (!pObj->b_done)
+    {
+        if (pObj->end > pObj->start) {
+            pObj->now = min_u16(pObj->now + pObj->step, pObj->end);
+        }
+        else {
+
+            pObj->now = (pObj->now < pObj->step) ? 0 : pObj->now - pObj->step;  // Check for underflow before subtracting
+            pObj->now = max_u16(pObj->now , pObj->end);
+        }
+        pObj->b_done = pObj->now == pObj->end;
+    }
+    return pObj->end >> 8;
+}
+
+bool LinRamp_isDone(LinRamp_t* pObj)
+{
+    return pObj->b_done;
 }
 
 /* Private function definitions */
+static uint16_t min_u16(uint16_t a, uint16_t b)
+{
+    return a < b ? a : b;
+}
+
+static uint16_t max_u16(uint16_t a, uint16_t b)
+{
+    return a > b ? a : b;
+}
