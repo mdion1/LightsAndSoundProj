@@ -32,7 +32,6 @@
           </logicalFolder>
           <logicalFolder name="Teensy" displayName="Teensy" projectFiles="true">
           </logicalFolder>
-          <itemPath>../HAL/HAL.h</itemPath>
           <itemPath>../HAL/HAL_ADC.h</itemPath>
           <itemPath>../HAL/HAL_globalIntMask.h</itemPath>
           <itemPath>../HAL/HAL_GPIO.h</itemPath>
@@ -52,6 +51,8 @@
           <itemPath>../HelperClasses/Int24AccumMath.h</itemPath>
           <itemPath>../HelperClasses/AmpScalingMath.c</itemPath>
           <itemPath>../HelperClasses/AmpScalingMath.h</itemPath>
+          <itemPath>../HelperClasses/RNG.c</itemPath>
+          <itemPath>../HelperClasses/RNG.h</itemPath>
         </logicalFolder>
         <logicalFolder name="StateMachines"
                        displayName="StateMachines"

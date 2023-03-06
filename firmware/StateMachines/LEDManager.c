@@ -2,10 +2,11 @@
 #include "../HelperClasses/HSVtoRGB.h"
 #include "../HelperClasses/LinearRamp.h"
 #include "../HelperClasses/AmpScalingMath.h"
+#include "../HelperClasses/RNG.h"
 #include "SamplingParams.h"
 #include "SignalSampling.h"
-#include "SignalAnalysis.h"
 #include "../HAL/HAL_PWM.h"
+#include "HAL/HAL_ADC.h"
 
 /* Private variable declarations */
 #define N_STEPS_PER_RAMP 120   /*! With an LED update interval of ~(1 / 30) = 33ms, a ramp duration
@@ -86,18 +87,17 @@ void LEDMgr_tasks(void)
         // initialize next ramp to random color
         onRampComplete();
     }
+    
+    /* Add entropy to the random number generator (LSB of last ADC conversion) */
+    RNG_seedEntropyBit((uint8_t)HAL_ADCGetConv());
 }
 
 /* Private function definitions */
 static void onRampComplete(void)
 {
-    //get random color, init ramp
-    uint8_t hueRand;
-    uint8_t satRand;    //get rand uint8
-    
-    /* Calculate step size */
-    
-    
+    /* Get random number for next hue and saturation values, init ramp */
+    uint8_t hueRand = RNG_get();
+    uint8_t satRand = RNG_get();
     LinRamp_setup(&SM.hueRamp, hueRand, N_STEPS_PER_RAMP);
     LinRamp_setup(&SM.satRamp, satRand, N_STEPS_PER_RAMP);
 }

@@ -3,7 +3,7 @@
 #include <xc.h>
 
 /* Board */
-void HAL_initBoard()
+void HAL_initPins(void)
 {
     /* Set Peripheral Module Disable bit for all modules */
     PMD0 = 0xff;    // Disable FOSC, FVR, HLVD, CRC, SCAN, CLKR, IOC

@@ -2,34 +2,58 @@
 #include "../HAL_sleepTimer.h"
 #include <xc.h>
 
-/* With clock source = 31kHz LFINTOSC and 1:8192 divider, timer
- * tick interval is ~264ms. With a timer period of 2, an interrupt is generated
- * every ~1.06 seconds.
- * 
- * With clock source = 31kHz LFINTOSC, 
- *      Clock divider       Tick interval
- *      4096                
- *      8192                264ms
- */
-#define TMR0_CLOCK_DIV_8192 13
-#define TMR0_CLOCK_DIV_4096 12
+#define TMR0_CLOCK_DIV_1024 10
 #define TMR0_CLOCK_DIV_512  9
-#define TMR0_PERIOD 4
+#define TMR0_CLOCK_DIV_256  8
+#define TMR0_CLOCK_DIV_128  7
+#define TMR0_CLOCK_DIV_64   6
 
 void HAL_sleepTimerInit(void)
 {
-    // Set clock source, prescaler, and period
-    T0CON1bits.CS = 0b100;  // LFINTOSC
+    T0CON1bits.CS = 0b100;  // Clock source = 31kHz LFINTOSC
 }
 
 void HAL_sleepTimerSetInterval(SleepTimerInt_t interval)
 {
-    uint8_t period;
-    uint8_t prescaler;
+    uint8_t period = 255;
+    uint8_t prescaler = TMR0_CLOCK_DIV_64;
     switch (interval)
     {
-        //...
+        default:
+        case SLEEP_INT_MIN:
+        case SLEEP_INT_MAX:
+            // Invalid values, return
+            return;
+        case SLEEP_INT_AFESTAGE_POWERUP:
+            period = 6;     // 10.3ms
+            break;
+        case SLEEP_INT_1:
+            period = 49;    // 99.1ms
+            break;
+        case SLEEP_INT_2:
+            period = 98;    // 200ms
+            break;
+        case SLEEP_INT_3:
+            period = 195;   // 400ms
+            break;
+        case SLEEP_INT_4:
+            period = 195;   // 800ms
+            prescaler = TMR0_CLOCK_DIV_128;
+            break;
+        case SLEEP_INT_5:
+            period = 195;   // 1.60s
+            prescaler = TMR0_CLOCK_DIV_256;
+            break;
+        case SLEEP_INT_6:
+            period = 195;   // 3.20s
+            prescaler = TMR0_CLOCK_DIV_512;
+            break;
+        case SLEEP_INT_7:
+            period = 195;   // 6.40s
+            prescaler = TMR0_CLOCK_DIV_1024;
+            break;
     }
+    
     TMR0H = period;
     T0CON1bits.CKPS = prescaler;
 }

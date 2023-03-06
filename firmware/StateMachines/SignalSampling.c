@@ -49,16 +49,13 @@ void SigSamp_init()
 
 void SigSamp_start()
 {
-    
-    
-    // todo: enable ADC timer interrupt, enable timer
     HAL_ADCEnable();
+    resetBuf();
 }
 
 void SigSamp_stop()
 {
     HAL_ADCDisable();
-    resetBuf();
 }
 
 void SigSamp_tasks()
@@ -92,14 +89,8 @@ void SigSamp_tasks()
     }
 }
 
-uint8_t SigSamp_getNumSamples()
+uint8_t SigSamp_getTimebase(void)
 {
-    return SM.readIdx;
-}
-
-uint8_t SigSamp_getTimebase()
-{
-    /*! \todo document timebase theory/calculations */
     return SM.readIdx & TIMEBASE_MASK;
 }
 
@@ -111,7 +102,7 @@ void SigSamp_getSigStr(int32_t* pSinOut, int32_t* pCosOut, uint8_t* numCycles)
 }
 
 /* Private function definitions */
-static void resetBuf()
+static void resetBuf(void)
 {
     // Reset indices
     SM.readIdx = 0;

@@ -11,7 +11,7 @@
 //#define TRIGDISABLE 0
 
 /* Private function declarations */
-static void dummyCallback() {}        // dummy function for unused callback function pointers
+static void dummyCallback(void) {}        // dummy function for unused callback function pointers
 
 /* Private variables */
 static void (*ADC_interrupt_callback)(void) = &dummyCallback;
@@ -38,11 +38,13 @@ void HAL_registerADCisrCallback(void (*p_callback)(void))
     ADC_interrupt_callback = p_callback;
 }
 
-int16_t HAL_ADCGetConv() {
+int16_t HAL_ADCGetConv(void)
+{
     return (int16_t)ADRES;
 }
 
-void HAL_ADCEnable() {
+void HAL_ADCEnable(void)
+{
     PMD2 &= 0b11111101;     // Clear peripheral module disable bit
     
     // Configure input pin as an analog input
@@ -58,7 +60,8 @@ void HAL_ADCEnable() {
     T2CONbits.ON = 1;
 }
 
-void HAL_ADCDisable() {
+void HAL_ADCDisable(void)
+{
     PMD2 |= 0b00000010;     // Set peripheral module disable bit
     
     // Set input pin to digital output, clamp to Vdd
