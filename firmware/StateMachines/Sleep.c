@@ -1,42 +1,38 @@
 #include "Sleep.h"
 #include "SamplingParams.h"
 #include "SignalSampling.h"
-#include "SignalAnalysis.h"
+#include "LEDManager.h"
+#include "../HAL/HAL_sleepTimer.h"
+#include "../HAL/HAL_sleep.h"
+#include "../HAL/HAL_GPIO.h"    //todo include ./ as h file include directory
 #include "../HelperClasses/AmpScalingMath.h"
 #define SIGNAL_STRENGTH_CUTOFF 1234 /*! \todo move this into SamplingParams.h */
 
 /* Private variable declarations */
-typedef enum {
-    DEEPSLEEP_MIN = 0,
-    DEEPSLEEP_100ms,
-    DEEPSLEEP_200ms,
-    DEEPSLEEP_400ms,
-    DEEPSLEEP_800ms,
-    DEEPSLEEP_1600ms,
-    DEEPSLEEP_3200ms,
-    DEEPSLEEP_6400ms,
-    DEEPSLEEP_MAX
-}deepSleepDur_t;
-
 #define LOWSIG_THRESH_CNT_MAX 4
 
 /* State machine */
 static struct
 {
-    deepSleepDur_t deepSleepDur;
-    uint16_t t_prev;
-    int lowSigCnt;
+    SleepTimerInt_t deepSleepDur;
+    uint8_t t_prev;
+    uint8_t lowSigCnt;
 }SM;
 
 /* Private function declarations */
-static void initDeepSleep();
-static void initSleepWhileSampling();
-static void onDeepSleepWake();
+static void initDeepSleep(void);
+static void blockingSleep(SleepTimerInt_t sleepLevel);
+static void onDeepSleepWake(void);
 
 /* Public function definitions */
+void Sleep_init()
+{
+    HAL_sleepTimerInit();
+}
+
 void Sleep_tasks()
 {
-    uint16_t timebase = SigSamp_getTimebase();
+    uint8_t timebase = SigSamp_getTimebase();
     if (timebase - SM.t_prev < SLEEP_TASKS_UPDATE_INTERVAL) {
         return;
     }
@@ -47,7 +43,7 @@ void Sleep_tasks()
     /* If signal strength is below threshold for too long, increment the deep sleep duration */
     int32_t SigStrSin, SigStrCos;
     uint8_t numCycles;
-    SigAnalysis_getSigStr(&SigStrSin, &SigStrCos, &numCycles);
+    SigSamp_getSigStr(&SigStrSin, &SigStrCos, &numCycles);
     uint16_t newBrightnessVal = AmpToBrightness(SigStrSin, SigStrCos, numCycles);
     if (newBrightnessVal < SIGNAL_STRENGTH_CUTOFF)
     {
@@ -57,7 +53,7 @@ void Sleep_tasks()
             SM.lowSigCnt = 0;
             
             // Increment deep sleep duration
-            if (SM.deepSleepDur < DEEPSLEEP_MAX) {
+            if (SM.deepSleepDur < SLEEP_INT_MAX) {
                 SM.deepSleepDur++;
             }
             
@@ -71,49 +67,51 @@ void Sleep_tasks()
     else
     {
         // Decrement low-signal count
-        if (SM.lowSigCnt >= 0) {
+        if (SM.lowSigCnt > 0) {
             SM.lowSigCnt--;
         }
         
         // Reset deep sleep duration
-        SM.deepSleepDur = DEEPSLEEP_MIN;
+        SM.deepSleepDur = SLEEP_INT_MIN;
         
-        initSleepWhileSampling();
+        /* ADC is already set to wake from sleep (enabled in SigSamp_start()), call SLEEP() */
+        HAL_sleep();
     }
 }
 
 
 /* Private function definitions */
-static void initDeepSleep()
+static void initDeepSleep(void)
 {
-    switch (SM.deepSleepDur)
-    {
-        default:
-            // do nothing
-            break;
-
-        case DEEPSLEEP_100ms:
-        case DEEPSLEEP_200ms:
-        case DEEPSLEEP_400ms:
-        case DEEPSLEEP_800ms:
-        case DEEPSLEEP_1600ms:
-        case DEEPSLEEP_3200ms:
-        case DEEPSLEEP_6400ms:
-            //todo
-            break;
-    }
-    // set wake trigger
-    // set timer duration
+    // Disable analog front end and PWM
+    HAL_AmpStageEnable(false);
+    LEDMgr_disable();
+    
+    /* Disable ADC + interrupt */
+    SigSamp_stop();
+    blockingSleep(SM.deepSleepDur);
 }
 
-static void initSleepWhileSampling()
-{
-    // set wake trigger
-
-}
-
-static void onDeepSleepWake()
+static void onDeepSleepWake(void)
 {
     // Turn on analog front end, wait for warmup (blocking wait)
-    //...
+    HAL_AmpStageEnable(true);
+    blockingSleep(0);
+
+    // Enable sampling (sets ADC conversion as wake trigger)
+    SigSamp_start();
+    
+    // Enable PWM, reset LEDMgr state machine
+    LEDMgr_enable();
+}
+
+static void blockingSleep(SleepTimerInt_t sleepLevel)
+{
+    /* Set sleep duration, call sleep */
+    HAL_SleepTimerEnable(true);
+    HAL_sleepTimerSetInterval(sleepLevel);
+    HAL_sleep();
+    
+    /* On wake, disable interrupt, disable Timer 0*/
+    HAL_SleepTimerEnable(false);
 }

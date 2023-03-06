@@ -14,8 +14,8 @@ static uint16_t max_u16(uint16_t a, uint16_t b);
 void LinRamp_setup(LinRamp_t* pObj, uint8_t start, uint8_t end)
 {
     pObj->b_done = false;
-    pObj->start = pObj->now = start << 8;
-    pObj->end = end << 8;
+    pObj->start = pObj->now = ((uint16_t)start) << 8;
+    pObj->end = ((uint16_t)end) << 8;
     pObj->step = (pObj->end - pObj->start) / N_STEPS_PER_RAMP;      // Divide by 128 should compile into >> 7
 }
 

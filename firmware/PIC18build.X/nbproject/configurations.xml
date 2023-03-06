@@ -16,17 +16,12 @@
         <logicalFolder name="HAL" displayName="HAL" projectFiles="true">
           <logicalFolder name="PIC18F06Q41" displayName="PIC18F06Q41" projectFiles="true">
             <itemPath>../HAL/PIC18F06Q41/device_config.c</itemPath>
-            <itemPath>../HAL/PIC18F06Q41/hal_ADC.c</itemPath>
-            <itemPath>../HAL/PIC18F06Q41/hal_interrupts.c</itemPath>
-            <itemPath>../HAL/PIC18F06Q41/hal_PWM.c</itemPath>
-            <itemPath>../HAL/PIC18F06Q41/hal_PWM.h</itemPath>
-            <itemPath>../HAL/PIC18F06Q41/hal_Systick.c</itemPath>
-            <itemPath>../HAL/PIC18F06Q41/hal_Systick.h</itemPath>
-            <itemPath>../HAL/PIC18F06Q41/hal_timers.c</itemPath>
-            <itemPath>../HAL/PIC18F06Q41/hal_timers.h</itemPath>
-            <itemPath>../HAL/PIC18F06Q41/HAL.c</itemPath>
-            <itemPath>../HAL/PIC18F06Q41/hal_ADC.h</itemPath>
-            <itemPath>../HAL/PIC18F06Q41/hal_interrupts.h</itemPath>
+            <itemPath>../HAL/PIC18F06Q41/HAL_ADC.c</itemPath>
+            <itemPath>../HAL/PIC18F06Q41/HAL_globalIntMask.c</itemPath>
+            <itemPath>../HAL/PIC18F06Q41/HAL_GPIO.c</itemPath>
+            <itemPath>../HAL/PIC18F06Q41/HAL_PWM.c</itemPath>
+            <itemPath>../HAL/PIC18F06Q41/HAL_sleep.c</itemPath>
+            <itemPath>../HAL/PIC18F06Q41/HAL_sleepTimer.c</itemPath>
           </logicalFolder>
           <logicalFolder name="PIC18F67K40" displayName="PIC18F67K40" projectFiles="true">
             <itemPath>../HAL/PIC18F67K40/device_config.c</itemPath>
@@ -37,9 +32,13 @@
           </logicalFolder>
           <logicalFolder name="Teensy" displayName="Teensy" projectFiles="true">
           </logicalFolder>
-          <itemPath>../HAL/Boards.h</itemPath>
           <itemPath>../HAL/HAL.h</itemPath>
-          <itemPath>../HAL/Systick.h</itemPath>
+          <itemPath>../HAL/HAL_ADC.h</itemPath>
+          <itemPath>../HAL/HAL_globalIntMask.h</itemPath>
+          <itemPath>../HAL/HAL_GPIO.h</itemPath>
+          <itemPath>../HAL/HAL_PWM.h</itemPath>
+          <itemPath>../HAL/HAL_sleep.h</itemPath>
+          <itemPath>../HAL/HAL_sleepTimer.h</itemPath>
         </logicalFolder>
         <logicalFolder name="HelperClasses"
                        displayName="HelperClasses"
@@ -59,10 +58,7 @@
                        projectFiles="true">
           <itemPath>../StateMachines/LEDManager.c</itemPath>
           <itemPath>../StateMachines/LEDManager.h</itemPath>
-          <itemPath>../StateMachines/SamplingParams.c</itemPath>
           <itemPath>../StateMachines/SamplingParams.h</itemPath>
-          <itemPath>../StateMachines/SignalAnalysis.c</itemPath>
-          <itemPath>../StateMachines/SignalAnalysis.h</itemPath>
           <itemPath>../StateMachines/SignalSampling.c</itemPath>
           <itemPath>../StateMachines/SignalSampling.h</itemPath>
           <itemPath>../StateMachines/Sleep.c</itemPath>

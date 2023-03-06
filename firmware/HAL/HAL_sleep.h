@@ -2,5 +2,4 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-void Sleep_init(void);
-void Sleep_tasks(void);
+void HAL_sleep(void);   // blocking call to SLEEP()
