@@ -19,6 +19,9 @@ static void (*ADC_interrupt_callback)(void) = &dummyCallback;
 /* Public function definitions */
 void HAL_initADC(uint8_t prescaler, uint8_t postscaler, uint8_t period)
 {
+    PMD2 &= ~(1 << 1);      // Clear ADC peripheral module disable bit
+    PMD1 &= ~(1 << 2);      // Clear TMR2 peripheral module disable bit
+    
     /* Init ADC module */
     ADCON0bits.ON = 1;      // Enable module
     ADCON0bits.CS = 1;      // Clock source = ADCRC oscillator
@@ -45,7 +48,7 @@ int16_t HAL_ADCGetConv(void)
 
 void HAL_ADCEnable(void)
 {
-    PMD2 &= 0b11111101;     // Clear peripheral module disable bit
+    PMD2 &= ~(1 << 1);     // Clear peripheral module disable bit
     
     // Configure input pin as an analog input
     TRISA |= (1 << 5);

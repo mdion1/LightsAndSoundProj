@@ -33,7 +33,7 @@ uint8_t LinRamp_incr(LinRamp_t* pObj)
         }
         pObj->b_done = pObj->now == pObj->end;
     }
-    return pObj->end >> 8;
+    return pObj->now >> 8;
 }
 
 bool LinRamp_isDone(LinRamp_t* pObj)

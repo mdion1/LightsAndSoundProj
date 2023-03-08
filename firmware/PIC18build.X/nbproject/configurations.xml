@@ -79,10 +79,10 @@
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
-    <conf name="PIC18F67K40" type="2">
+    <conf name="__NOTE_C2__" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
-        <targetDevice>PIC18F67K40</targetDevice>
+        <targetDevice>PIC18F06Q41</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
         <platformTool>noID</platformTool>
@@ -91,7 +91,7 @@
         <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="PIC18F-K_DFP" vendor="Microchip" version="1.4.87"/>
+        <pack name="PIC18F-Q_DFP" vendor="Microchip" version="1.8.154"/>
       </packs>
       <ScriptingSettings>
       </ScriptingSettings>
@@ -126,7 +126,7 @@
         <property key="call-prologues" value="false"/>
         <property key="default-bitfield-type" value="true"/>
         <property key="default-char-type" value="true"/>
-        <property key="define-macros" value="__PIC18F67K40__"/>
+        <property key="define-macros" value="__PIC18F06Q41__;__NOTE_C2__"/>
         <property key="disable-optimizations" value="true"/>
         <property key="extra-include-directories" value="..\"/>
         <property key="favor-optimization-for" value="-speed,+space"/>

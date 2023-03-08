@@ -23,6 +23,8 @@
 
 void HAL_initPWM()
 {
+    PMD3 &= 0b11111000;     // Clear Peripheral Module Disable bits
+    
     /* Set clock source and period */
     PWM1CLK = 3; //HFINTOSC
     PWM2CLK = 3;
@@ -56,9 +58,9 @@ void HAL_PWMEnable(bool en)
 
 void HAL_setPWM(uint8_t Rval, uint8_t Gval, uint8_t Bval)
 {
-    PWM1S1P1 = Rval;
-    PWM1S1P2 = Gval;
     PWM1S1P1 = Bval;
+    PWM1S1P2 = Gval;
+    PWM1S1P1 = Rval;      
     PWMLOAD = 0b11; // set "load" bit for PWM1 and PWM2
 }
 
