@@ -9,14 +9,10 @@
 #include "HAL/HAL_ADC.h"
 
 /* Private variable declarations */
-#define N_STEPS_PER_RAMP 120   /*! With an LED update interval of ~(1 / 30) = 33ms, a ramp duration
-                                *  of 4 seconds works out to 4s * 30Hz = 120 update intervals. */
 
 //State machine
 static struct
 {
-    int brightLvl;
-    RGB_t led;
     LinRamp_t hueRamp;
     LinRamp_t satRamp;
     uint16_t tPrev;
@@ -31,6 +27,9 @@ static uint8_t LPF_pushVal(uint8_t val);
 void LEDMgr_init()
 {
     HAL_initPWM();
+    
+    SM.hueRamp = LinRamp_getObj();
+    SM.satRamp = LinRamp_getObj();
 
     //todo: init State machine
 }
@@ -41,12 +40,7 @@ void LEDMgr_disable(void)
 
 void LEDMgr_enable(void)
 {
-    // Reset brightness level
-    SM.brightLvl = 0;
-    
     SM.LPFsum = 0;
-    //...
-    
     HAL_PWMEnable(true);
 }
 
@@ -97,8 +91,8 @@ static void onRampComplete(void)
     /* Get random number for next hue and saturation values, init ramp */
     uint8_t hueRand = RNG_get();
     uint8_t satRand = RNG_get();
-    LinRamp_setup(&SM.hueRamp, hueRand, N_STEPS_PER_RAMP);
-    LinRamp_setup(&SM.satRamp, satRand, N_STEPS_PER_RAMP);
+    LinRamp_setup(&SM.hueRamp, hueRand);
+    LinRamp_setup(&SM.satRamp, satRand);
 }
 
 static uint8_t LPF_pushVal(uint8_t x)

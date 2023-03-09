@@ -12,6 +12,7 @@ void HAL_sleepTimerInit(void)
 {
     PMD1 &= ~(0x01);    //Clear Timer0's peripheral module disable bit */
     T0CON1bits.CS = 0b100;  // Clock source = 31kHz LFINTOSC
+    T0CON1bits.ASYNC = 1;   // Enable asynchronous mode, so timer can operate during sleep
 }
 
 void HAL_sleepTimerSetInterval(SleepTimerInt_t interval)
