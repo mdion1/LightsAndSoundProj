@@ -62,7 +62,7 @@ void LEDMgr_tasks(void)
     int32_t SigStrSin, SigStrCos;
     uint8_t numCycles;
     SigSamp_getSigStr(&SigStrSin, &SigStrCos, &numCycles);
-    uint16_t newBrightnessVal = AmpToBrightness(SigStrSin, SigStrCos, numCycles);
+    uint8_t newBrightnessVal = AmpToBrightness(SigStrSin, SigStrCos, numCycles);
     uint8_t valFiltered = LPF_pushVal(newBrightnessVal);
 
     /* Increment hue and saturation ramp */
@@ -85,14 +85,20 @@ void LEDMgr_tasks(void)
 /* Private function definitions */
 static void onRampComplete(void)
 {
-    /* Add entropy to the random number generator (LSB of last ADC conversion) */
+    /* Add entropy to the random number generator (LSB of most recent ADC conversion). */
     RNG_seedEntropyBit((uint8_t)HAL_ADCGetConv());
     
-    /* Get random number for next hue and saturation values, init ramp */
-    uint8_t hueRand = RNG_get();
-    uint8_t satRand = RNG_get();
-    LinRamp_setup(&SM.hueRamp, hueRand);
-    LinRamp_setup(&SM.satRamp, satRand);
+    /* Get random number for next hue and saturation values, setup ramp.
+     * Next hue must between 25%-50% of the way around the color wheel from the previous
+     * value (from 64 to 127).
+     * Next saturation value must be between 50%-100% (from 128 to 255).
+     */
+    uint8_t hueNext = LinRamp_getCurrentVal(&SM.hueRamp);
+    hueNext += 64 + (RNG_get() & 63);
+    uint8_t satNext = RNG_get() | 0x80;   // random values of sat between 128 - 255
+    
+    LinRamp_setup(&SM.hueRamp, hueNext);
+    LinRamp_setup(&SM.satRamp, satNext);
 }
 
 static uint8_t LPF_pushVal(uint8_t x)

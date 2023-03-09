@@ -14,4 +14,5 @@ typedef struct
 LinRamp_t LinRamp_getObj(void);
 void LinRamp_setup(LinRamp_t* pObj, uint8_t end);
 uint8_t LinRamp_incr(LinRamp_t* pObj);
+uint8_t LinRamp_getCurrentVal(LinRamp_t* pObj);
 bool LinRamp_isDone(LinRamp_t* pObj);

@@ -23,7 +23,12 @@ void LinRamp_setup(LinRamp_t* pObj, uint8_t end)
     pObj->b_done = false;
     pObj->start = pObj->now;
     pObj->end = ((uint16_t)end) << 8;
-    pObj->step = (pObj->end - pObj->start) / N_STEPS_PER_RAMP;      // Divide by 128 should compile into >> 7
+    
+    // Take the absolute value of (end - start)
+    pObj->step = (  (pObj->end > pObj->start) ?
+                    (pObj->end - pObj->start) :
+                    (pObj->start - pObj->end) )
+                    / N_STEPS_PER_RAMP;      // Divide by 128 should compile into >> 7
 }
 
 uint8_t LinRamp_incr(LinRamp_t* pObj)
@@ -40,6 +45,11 @@ uint8_t LinRamp_incr(LinRamp_t* pObj)
         }
         pObj->b_done = pObj->now == pObj->end;
     }
+    return pObj->now >> 8;
+}
+
+uint8_t LinRamp_getCurrentVal(LinRamp_t* pObj)
+{
     return pObj->now >> 8;
 }
 

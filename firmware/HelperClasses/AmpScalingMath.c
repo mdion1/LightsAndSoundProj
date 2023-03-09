@@ -8,18 +8,22 @@ static uint16_t mult8x8(uint8_t a, uint8_t b);
 #ifndef OPTIMIZE_LATER_NOT_NOW
 #include <math.h>
 
-uint16_t AmpToBrightness(int32_t sin, int32_t cos, uint8_t numCycles)
+uint8_t AmpToBrightness(int32_t sin, int32_t cos, uint8_t numCycles)
 {
-    // assumes inputs of 18bits + sign bit
-    // right-shift 18 bits down to 8 bits, do an 8x8 multiply
-    uint16_t sin2 = square8(abs32(sin) >> 10);
-    uint16_t cos2 = square8(abs32(cos) >> 10);
+#define MAX_VAL 90000
+#define SCALAR 0.002
+    sin = (sin < 0) ? -sin : sin;
+    cos = (cos < 0) ? -cos : cos;
+    sin = (sin < MAX_VAL) ? sin : MAX_VAL;
+    cos = (cos < MAX_VAL) ? cos : MAX_VAL;    
+    float sin_float = sin*sin;
+    float cos_float = cos*cos;
+    float hypot = sqrt(sin_float + cos_float);
     
-    // divide by two to prevent overflow, then add. Result is 16 bits max.
-    uint16_t mag2 = (sin2 >> 1) + (cos2 >> 1);
-    
-    const float scalar = 1.234;
-    return roundf(scalar * sqrtf(mag2) / numCycles);
+    const float scalar = SCALAR;
+    return roundf(scalar * hypot);
+    //const float scalar = 0.704;
+    //return roundf(scalar * hypot / numCycles);
 }
 
 #else
@@ -36,7 +40,7 @@ static const uint8_t NLog2Lookup;
 
 
 
-uint16_t AmpToBrightness(int32_t sin, int32_t cos, uint8_t numCycles)
+uint8_t AmpToBrightness(int32_t sin, int32_t cos, uint8_t numCycles)
 {
     // assumes inputs of 18bits + sign bit
     // right-shift 18 bits down to 8 bits, do an 8x8 multiply

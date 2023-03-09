@@ -5,6 +5,11 @@
 /* Board */
 void HAL_initPins(void)
 {
+    /* Configure the internal oscillator. At startup, HFINTOSC is running at 4MHz with a
+     * 4:1 divider. Change to 1MHz with a 1:1 divider. */
+    OSCFRQ = 0; //1MHz
+    OSCCON1bits.NDIV = 0; // 1:1 divider
+    
     /* Set Peripheral Module Disable bit for all modules */
     PMD0 = 0xff;    // Disable FOSC, FVR, HLVD, CRC, SCAN, CLKR, IOC
     PMD1 = 0xff;    // Disable C1, ZCD, SMT1, Timers 0 - 4
@@ -25,7 +30,7 @@ void HAL_initPins(void)
 void HAL_AmpStageEnable(bool en)
 {
     if (en) {
-        LATA = (1 << 2);        // pin high
+        LATA |= (1 << 2);        // pin high
     }
     else {
         LATA &= ~(1 << 2);      // pin low

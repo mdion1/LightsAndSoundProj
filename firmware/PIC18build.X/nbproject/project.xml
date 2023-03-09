@@ -17,11 +17,11 @@
             </sourceRootList>
             <confList>
                 <confElem>
-                    <name>PIC18F67K40</name>
+                    <name>__NOTE_C2__</name>
                     <type>2</type>
                 </confElem>
                 <confElem>
-                    <name>PIC18F06Q41</name>
+                    <name>__NOTE_C4__</name>
                     <type>2</type>
                 </confElem>
             </confList>

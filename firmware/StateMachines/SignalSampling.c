@@ -38,7 +38,7 @@ static void ISRcallback(void);
 
 void SigSamp_init()
 {
-    HAL_initADC(TSAMP_PRESCALER, TSAMP_POSTSCALER, TSAMP_PERIOD);
+    HAL_initADC(TSAMP_PRESCALER, TSAMP_POSTSCALER - 1, TSAMP_PERIOD - 1);
     HAL_globalIntEn();
     WndAvg_init(&SM.avgSin, FourierSumSin, FOURIER_SUM_ARRAY_LEN);
     WndAvg_init(&SM.avgCos, FourierSumCos, FOURIER_SUM_ARRAY_LEN);
