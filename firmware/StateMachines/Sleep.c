@@ -6,7 +6,7 @@
 #include "../HAL/HAL_sleep.h"
 #include "../HAL/HAL_GPIO.h"    //todo include ./ as h file include directory
 #include "../HelperClasses/AmpScalingMath.h"
-#define SIGNAL_STRENGTH_CUTOFF 1234 /*! \todo move this into SamplingParams.h */
+#define SIGNAL_STRENGTH_CUTOFF 0//1234 /*! \todo move this into SamplingParams.h */
 
 /* Private variable declarations */
 #define LOWSIG_THRESH_CNT_MAX 4
@@ -28,6 +28,9 @@ static void onDeepSleepWake(void);
 void Sleep_init()
 {
     HAL_sleepTimerInit();
+    
+    // Start program as if MCU just woke up
+    onDeepSleepWake();
 }
 
 void Sleep_tasks()
@@ -50,15 +53,14 @@ void Sleep_tasks()
         SM.lowSigCnt++;
         if (SM.lowSigCnt >= LOWSIG_THRESH_CNT_MAX)
         {
-            SM.lowSigCnt = 0;
+            initDeepSleep();
+            onDeepSleepWake();
             
-            // Increment deep sleep duration
+            // Reset lowSigCnt, Increment deep sleep duration
+            SM.lowSigCnt = 0;
             if (SM.deepSleepDur < SLEEP_INT_MAX) {
                 SM.deepSleepDur++;
             }
-            
-            initDeepSleep();
-            onDeepSleepWake();
         }
     }
     /* If signal strength is above threshold, reset deep sleep duration and initiate sleep
@@ -96,7 +98,7 @@ static void onDeepSleepWake(void)
 {
     // Turn on analog front end, wait for warmup (blocking wait)
     HAL_AmpStageEnable(true);
-    blockingSleep(0);
+    blockingSleep(SLEEP_INT_AFESTAGE_POWERUP);
 
     // Enable sampling (sets ADC conversion as wake trigger)
     SigSamp_start();
@@ -110,6 +112,7 @@ static void blockingSleep(SleepTimerInt_t sleepLevel)
     /* Set sleep duration, call sleep */
     HAL_SleepTimerEnable(true);
     HAL_sleepTimerSetInterval(sleepLevel);
+    HAL_sleepTimerStart();
     HAL_sleep();
     
     /* On wake, disable interrupt, disable Timer 0*/

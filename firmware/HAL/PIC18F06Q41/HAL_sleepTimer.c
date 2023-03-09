@@ -10,6 +10,7 @@
 
 void HAL_sleepTimerInit(void)
 {
+    PMD1 &= ~(0x01);    //Clear Timer0's peripheral module disable bit */
     T0CON1bits.CS = 0b100;  // Clock source = 31kHz LFINTOSC
 }
 
@@ -20,9 +21,7 @@ void HAL_sleepTimerSetInterval(SleepTimerInt_t interval)
     switch (interval)
     {
         default:
-        case SLEEP_INT_MIN:
-        case SLEEP_INT_MAX:
-            // Invalid values, return
+            // Invalid value, return
             return;
         case SLEEP_INT_AFESTAGE_POWERUP:
             period = 6;     // 10.3ms
@@ -58,6 +57,10 @@ void HAL_sleepTimerSetInterval(SleepTimerInt_t interval)
     T0CON1bits.CKPS = prescaler;
 }
 
+void HAL_sleepTimerStart(void)
+{
+    T0CON0bits.EN = 1;  // Start timer
+}
 void HAL_SleepTimerEnable(bool en)
 {
     /* Set/clear Timer0's peripheral module disable bit */
@@ -65,15 +68,13 @@ void HAL_SleepTimerEnable(bool en)
         PMD1 &= ~(0x01);
     }
     else {
+        T0CON0bits.EN = 0;  // Stop timer
         PMD1 |= 1;
     }
     
     /* Clear Timer0's interrupt flag and set/clear enable bit */
     PIR3bits.TMR0IF = 0;
     PIE3bits.TMR0IE = en;
-
-    /* Start (stop)  timer */
-    T0CON0bits.EN = en;
 }
 
 /* ISR */

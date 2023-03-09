@@ -82,19 +82,18 @@ void LEDMgr_tasks(void)
     /* Check for completed color ramp */
     if (LinRamp_isDone(&SM.hueRamp)
         && LinRamp_isDone(&SM.satRamp)
-    )
-    {
+    ) {
         // initialize next ramp to random color
         onRampComplete();
     }
-    
-    /* Add entropy to the random number generator (LSB of last ADC conversion) */
-    RNG_seedEntropyBit((uint8_t)HAL_ADCGetConv());
 }
 
 /* Private function definitions */
 static void onRampComplete(void)
 {
+    /* Add entropy to the random number generator (LSB of last ADC conversion) */
+    RNG_seedEntropyBit((uint8_t)HAL_ADCGetConv());
+    
     /* Get random number for next hue and saturation values, init ramp */
     uint8_t hueRand = RNG_get();
     uint8_t satRand = RNG_get();

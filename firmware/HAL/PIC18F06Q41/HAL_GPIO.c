@@ -20,6 +20,9 @@ void HAL_initPins(void)
     ANSELC = 0;
     TRISA = 0;
     TRISC = 0;
+    
+    /* Enable LFINTOSC */
+    OSCENbits.LFOEN = 1;
 }
 
 void HAL_AmpStageEnable(bool en)

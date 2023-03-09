@@ -19,7 +19,7 @@
  */
 #define PWM1S1P1_OUT 0x0a   // Peripheral pin select output register values
 #define PWM1S1P2_OUT 0x0b
-#define PWM1S2P1_OUT 0x0c
+#define PWM2S1P1_OUT 0x0c
 
 void HAL_initPWM()
 {
@@ -42,7 +42,7 @@ void HAL_PWMEnable(bool en)
         // Assign GPIO's using the Peripheral Pin Select registers
         RC0PPS = PWM1S1P1_OUT;  // Red channel
         RC1PPS = PWM1S1P2_OUT;  // Green channel
-        RC2PPS = PWM1S2P1_OUT;  // Blue channel
+        RC2PPS = PWM2S1P1_OUT;  // Blue channel
     }
     else
     {
@@ -58,9 +58,9 @@ void HAL_PWMEnable(bool en)
 
 void HAL_setPWM(uint8_t Rval, uint8_t Gval, uint8_t Bval)
 {
-    PWM1S1P1 = Bval;
+    PWM1S1P1 = Rval;
     PWM1S1P2 = Gval;
-    PWM1S1P1 = Rval;      
+    PWM2S1P1 = Bval;      
     PWMLOAD = 0b11; // set "load" bit for PWM1 and PWM2
 }
 

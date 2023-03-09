@@ -74,7 +74,7 @@ void SigSamp_tasks()
      */
     
     /* Process new samples in groups of 4 */
-    while (writeIdx_cpy - SM.readIdx >= 4)
+    while ((uint8_t)(writeIdx_cpy - SM.readIdx) >= 4)
     {
         const int16_t* buf = &sampBuf[SM.readIdx];
         /** 2-bit sine lookup table = {0, 1, 0, -1}

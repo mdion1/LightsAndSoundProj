@@ -22,6 +22,6 @@ uint8_t RNG_get(void)
 void RNG_seedEntropyBit(uint8_t seed)
 {
     /* Take the lowest bit and xor with the LFSR, then increment the LFSR */
-    LFSRval &= seed & 0x01;
+    LFSRval ^= seed & 0x01;
     RNG_get();
 }

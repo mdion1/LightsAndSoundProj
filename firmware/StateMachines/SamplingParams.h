@@ -1,13 +1,5 @@
 #pragma once
 
-#define __NOTE_C2__
-//#define __NOTE_Csharp2__
-//#define __NOTE_D2__
-//#define __NOTE_Dsharp2__
-//#define __NOTE_E2__
-//#define __NOTE_F2__
-//...
-
 #if defined __NOTE_C2__
 
 /* C2 note frequency = 65.41Hz
