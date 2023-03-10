@@ -14,11 +14,11 @@ uint8_t AmpToBrightness(int32_t sin, int32_t cos, uint8_t numCycles)
 #define SCALAR 0.002
     sin = (sin < 0) ? -sin : sin;
     cos = (cos < 0) ? -cos : cos;
-    sin = (sin < MAX_VAL) ? sin : MAX_VAL;
-    cos = (cos < MAX_VAL) ? cos : MAX_VAL;    
-    float sin_float = sin*sin;
-    float cos_float = cos*cos;
-    float hypot = sqrt(sin_float + cos_float);
+    float sin_f = (sin < MAX_VAL) ? sin : MAX_VAL;
+    float cos_f = (cos < MAX_VAL) ? cos : MAX_VAL;    
+    sin_f = sin_f*sin_f;
+    cos_f = cos_f*cos_f;
+    float hypot = sqrtf(sin_f + cos_f);
     
     const float scalar = SCALAR;
     return roundf(scalar * hypot);

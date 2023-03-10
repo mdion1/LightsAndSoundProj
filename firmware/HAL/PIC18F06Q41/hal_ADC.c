@@ -28,6 +28,7 @@ void HAL_initADC(uint8_t prescaler, uint8_t postscaler, uint8_t period)
     ADCON0bits.FM = 1;      // Conversion results are right-justified
     ADPCH = ADCINPUTCHAN;   // input channel
     ADACT = SAMPTRIGSRC;    // trigger source
+    PIE1bits.ADIE = 1;      // enable interrupt
 
     /* Init Timer2 trigger source */
     T2CLKCONbits.CS = 3;            // Set HFINTOSC as clock source
@@ -54,10 +55,6 @@ void HAL_ADCEnable(void)
     TRISA |= (1 << 5);
     ANSELA |= (1 << 5);
 
-    /* clear interrupt flag and enable interrupt */
-    PIR1bits.ADIF = 0;
-    PIE1bits.ADIE = true;
-
     /* Enable Timer2 trigger source */
     PMD1 &= ~(1 << 2);  // Clear Peripheral Module Disable bit
     T2CONbits.ON = 1;
@@ -65,16 +62,15 @@ void HAL_ADCEnable(void)
 
 void HAL_ADCDisable(void)
 {
-    PMD2 |= 0b00000010;     // Set peripheral module disable bit
+    /* Disable Timer2 trigger source, set PMD bits */
+    T2CONbits.ON = 0;
+    PMD1 |= (1 << 2);   // Set Timer2 Peripheral Module Disable bit
+    PMD2 |= (1 << 1);     // Set ADC Peripheral Module Disable bit
     
     // Set input pin to digital output, clamp to Vdd
     TRISA &= ~(1 << 5);
     ANSELA &= ~(1 << 5);
     TRISA |= (1 << 5);      // set pin high
-
-    /* Disable Timer2 trigger source */
-    T2CONbits.ON = 0;
-    PMD1 |= (1 << 2);   // Set Peripheral Module Disable bit
 }
 
 /* ISR */

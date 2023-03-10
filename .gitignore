@@ -1,5 +1,6 @@
 *.exe
 firmware/PIC18build.X/build/
+firmware/PIC18build.X/dist/
 firmware/PIC18build.X/**/*.mk
 firmware/PIC18build.X/**/*.properties
 firmware/PIC18build.X/**/*.bash
