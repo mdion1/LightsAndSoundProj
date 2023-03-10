@@ -35,11 +35,15 @@ void Sleep_init()
 
 void Sleep_tasks()
 {
+#if 1
+    if (!SigSamp_dataReady()) { return; }
+#else
     uint8_t timebase = SigSamp_getTimebase();
     if (timebase - SM.t_prev < SLEEP_TASKS_UPDATE_INTERVAL) {
         return;
     }
     SM.t_prev = timebase;
+#endif
         
         
         //////////////////// 
@@ -47,26 +51,26 @@ void Sleep_tasks()
     int32_t SigStrSin, SigStrCos;
     uint8_t numCycles;
     SigSamp_getSigStr(&SigStrSin, &SigStrCos, &numCycles);
-    uint16_t newBrightnessVal = AmpToBrightness(SigStrSin, SigStrCos, numCycles);
-    if (newBrightnessVal < SIGNAL_STRENGTH_CUTOFF)
-    {
-        SM.lowSigCnt++;
-        if (SM.lowSigCnt >= LOWSIG_THRESH_CNT_MAX)
-        {
-            initDeepSleep();
-            onDeepSleepWake();
-            
-            // Reset lowSigCnt, Increment deep sleep duration
-            SM.lowSigCnt = 0;
-            if (SM.deepSleepDur < SLEEP_INT_MAX) {
-                SM.deepSleepDur++;
-            }
-        }
-    }
+//    uint8_t newBrightnessVal = AmpToBrightness(SigStrSin, SigStrCos, numCycles);
+//    if (newBrightnessVal < SIGNAL_STRENGTH_CUTOFF)
+//    {
+//        SM.lowSigCnt++;
+//        if (SM.lowSigCnt >= LOWSIG_THRESH_CNT_MAX)
+//        {
+//            initDeepSleep();
+//            onDeepSleepWake();
+//            
+//            // Reset lowSigCnt, Increment deep sleep duration
+//            SM.lowSigCnt = 0;
+//            if (SM.deepSleepDur < SLEEP_INT_MAX) {
+//                SM.deepSleepDur++;
+//            }
+//        }
+//    }
     /* If signal strength is above threshold, reset deep sleep duration and initiate sleep
      * with wake-on-ADC-conversion.
      */
-    else
+    //else
     {
         // Decrement low-signal count
         if (SM.lowSigCnt > 0) {

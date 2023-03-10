@@ -23,12 +23,18 @@ static struct {
     // Averaging/summing
     WndAvg_t avgSin;
     WndAvg_t avgCos;
+    
+    bool dataReady;
 }SM;
 
 // State machine owned by the ISR
 static volatile struct {
     uint8_t writeIdx;            //buffer index of the next sample to be converted; read-only except by the ISR callback
+    bool bufFull;
 }ISRvars;
+
+static int32_t sumSin = 0;
+static int32_t sumCos = 0;
 
 /* Private function declarations */
 static void resetBuf(void);
@@ -62,7 +68,7 @@ void SigSamp_tasks()
 {
     /* Protected section: make local copies of ISR-owned volatile variables. */
     HAL_globalIntDis();
-    uint8_t writeIdx_cpy = ISRvars.writeIdx;
+    bool bufFull_cpy = ISRvars.bufFull;
     HAL_globalIntEn();
     
     /*
@@ -72,7 +78,29 @@ void SigSamp_tasks()
      * -Once the predetermined number of periods ("period" = 4 samples) are processed, the sine/cosine sums are saved in a buffer
      *      used for post-averaging/filtering.
      */
+#if 1
+    SM.dataReady = false;
+    if (!bufFull_cpy) { return; }  //debugging: try summing the whole buffer all at once
     
+    sumCos = 0;
+    sumSin = 0;
+    for (int i = 0; i < 64; i++)
+    {
+        const int16_t* buf = &sampBuf[SM.readIdx];
+        /** 2-bit sine lookup table = {0, 1, 0, -1}
+         *  2-bit cosine lookup table = {1, 0, -1, 0}
+         */
+        sumSin += buf[1] - buf[3];
+        sumCos += buf[0] - buf[2];
+        
+        SM.readIdx += 4;
+    }
+    SM.dataReady = true;
+    HAL_globalIntDis();
+    ISRvars.bufFull = false;
+    HAL_globalIntEn();
+    
+#else
     /* Process new samples in groups of 4 */
     while ((uint8_t)(writeIdx_cpy - SM.readIdx) >= 4)
     {
@@ -87,6 +115,7 @@ void SigSamp_tasks()
         WndAvg_pushVal(&SM.avgSin, sumSin);     /*! \todo: what are the minimum sizes for the WndAvg_pushVal() input arguments? */
         WndAvg_pushVal(&SM.avgCos, sumCos);
     }
+#endif
 }
 
 uint8_t SigSamp_getTimebase(void)
@@ -94,11 +123,23 @@ uint8_t SigSamp_getTimebase(void)
     return SM.readIdx & TIMEBASE_MASK;
 }
 
+bool SigSamp_dataReady(void)
+{
+    return SM.dataReady;
+}
+
 void SigSamp_getSigStr(int32_t* pSinOut, int32_t* pCosOut, uint8_t* numCycles)
 {
+#if 1
+    *pSinOut = sumSin;
+    *pCosOut = sumCos;
+    *numCycles = 64;
+    
+#else
     *pSinOut = WndAvg_getSum(&SM.avgSin);
     *pCosOut = WndAvg_getSum(&SM.avgCos);
     *numCycles = SM.readIdx >> 2;
+#endif
 }
 
 /* Private function definitions */
@@ -118,6 +159,15 @@ static void ISRcallback(void)
     /* When buffer is full, index will overflow to zero. check if main software thread is
      * finished processing the buffer.
      */
+#if 1
+    if (!ISRvars.bufFull)
+    {
+        // Push new sample to the buffer, increment buf index
+        sampBuf[ISRvars.writeIdx] = HAL_ADCGetConv();
+        ISRvars.writeIdx++;
+        ISRvars.bufFull = (ISRvars.writeIdx == 0);
+    }
+#else
     if ((ISRvars.writeIdx > 0) || ((0 == SM.readIdx))) {       /* Equivalent to checking if write-index is NOT waiting at 0
                                                                   * for read-index to increment/rollover to 0,
                                                                   * i.e. main software thread has finished processing the buffer. */
@@ -125,4 +175,5 @@ static void ISRcallback(void)
         sampBuf[ISRvars.writeIdx] = HAL_ADCGetConv();
         ISRvars.writeIdx++;
     }
+#endif
 }

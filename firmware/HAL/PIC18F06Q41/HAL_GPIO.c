@@ -25,6 +25,8 @@ void HAL_initPins(void)
     ANSELC = 0;
     TRISA = 0;
     TRISC = 0;
+    
+    OSCTUNE = 7; //debugging: used to correct a clock frequency that was ~%2.5 too slow
 }
 
 void HAL_AmpStageEnable(bool en)

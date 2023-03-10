@@ -50,6 +50,9 @@ void LEDMgr_tasks(void)
     //convert SigLvl to BrtLvl, average
     //check if BrtLvl and SigLvl are below threshold, turn off and raise "off" event
     //todo: need on/off state hysteresis variables/delays (OR put the delays in the Sleep module logic!)
+#if 1
+    if (!SigSamp_dataReady()) { return; }
+#else
     uint16_t timebase = SigSamp_getTimebase();
 
     if (timebase - SM.tPrev < LED_REFRESH_INTERVAL) {
@@ -57,6 +60,7 @@ void LEDMgr_tasks(void)
     }
 
     SM.tPrev = timebase;
+#endif
 
     /* Get signal strength, convert to brightness level, filter result */
     int32_t SigStrSin, SigStrCos;
@@ -65,6 +69,8 @@ void LEDMgr_tasks(void)
     uint8_t newBrightnessVal = AmpToBrightness(SigStrSin, SigStrCos, numCycles);
     uint8_t valFiltered = LPF_pushVal(newBrightnessVal);
 
+#if 1
+    //#ifdef USE_RGB
     /* Increment hue and saturation ramp */
     uint8_t hueNext = LinRamp_incr(&SM.hueRamp);
     uint8_t satNext = LinRamp_incr(&SM.satRamp);
@@ -80,6 +86,9 @@ void LEDMgr_tasks(void)
         // initialize next ramp to random color
         onRampComplete();
     }
+#else
+    HAL_setPWM(0, valFiltered, 0);
+#endif
 }
 
 /* Private function definitions */
@@ -114,7 +123,13 @@ static uint8_t LPF_pushVal(uint8_t x)
      * For an LED refresh rate of ~30Hz, an alpha value of 1/8 works out to a
      * filter corner frequency of ~4Hz.
      */
-    SM.LPFsum += x - (SM.LPFsum >> 3);
+#if 1//#ifdef USE_LPF_FILTER
+    //SM.LPFsum += x - (SM.LPFsum >> 3);
+    //return (SM.LPFsum + 4) >> 3;  // add 4 to round up
     
-    return (SM.LPFsum + 4) >> 3;  // add 4 to round up
+    SM.LPFsum += x - (SM.LPFsum >> 2);
+    return (SM.LPFsum + 2) >> 2;  // add 2 to round up
+#else
+    return x;
+#endif
 }
