@@ -6,6 +6,7 @@ typedef struct
     int16_t* buf;
     uint8_t idx;
     uint8_t len;
+    uint8_t count;
     int32_t sum;
 }WndAvg_t;
 

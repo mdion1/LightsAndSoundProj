@@ -17,6 +17,7 @@ void WndAvg_clear(WndAvg_t* pObj)
 {
     pObj->sum = 0;
     pObj->idx = 0;
+    pObj->count = 0;
     for (uint8_t i = 0; i < pObj->len; i++) {
         pObj->buf[i] = 0;
     }
@@ -32,10 +33,19 @@ void WndAvg_pushVal(WndAvg_t* pObj, int16_t val)
     if (pObj->idx == pObj->len) {
         pObj->idx = 0;
     }
+    
+    // Increment count
+    if (pObj->count < pObj->len) {
+        pObj->count++;
+    }
 }
 
 int32_t WndAvg_getSum(WndAvg_t* pObj) {
     return pObj->sum;
+}
+
+uint8_t WndAvg_getCount(WndAvg_t* pObj) {
+    return pObj->count;
 }
 
 /* Private function definitions */
