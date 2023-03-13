@@ -5,7 +5,7 @@
 #include "../HelperClasses/WindowAvg.h" // todo: add ./ as include directory
 
 /* Private variable declarations */
-#define SAMPLE_BUF_SIZE 256
+#define SAMPLE_BUF_SIZE 32 //256
 #define FOURIER_SUM_ARRAY_LEN 64
 
 #define TIMEBASE_MASK 0b11111100        // clears the lower 2 bits so that (readIdx & TIMEBASE_MASK) is a multiple 4
@@ -63,7 +63,6 @@ void SigSamp_stop()
 {
     HAL_ADCDisable();
 }
-
 void SigSamp_tasks()
 {
     /* Protected section: make local copies of ISR-owned volatile variables. */
@@ -84,7 +83,8 @@ void SigSamp_tasks()
     
     sumCos = 0;
     sumSin = 0;
-    for (int i = 0; i < 64; i++)
+    SM.readIdx = 0;
+    for (int i = 0; i < (SAMPLE_BUF_SIZE >> 2); i++)
     {
         const int16_t* buf = &sampBuf[SM.readIdx];
         /** 2-bit sine lookup table = {0, 1, 0, -1}
@@ -133,7 +133,7 @@ void SigSamp_getSigStr(int32_t* pSinOut, int32_t* pCosOut, uint8_t* numCycles)
 #if 1
     *pSinOut = sumSin;
     *pCosOut = sumCos;
-    *numCycles = 64;
+    *numCycles = SAMPLE_BUF_SIZE >> 2;
     
 #else
     *pSinOut = WndAvg_getSum(&SM.avgSin);
@@ -165,7 +165,10 @@ static void ISRcallback(void)
         // Push new sample to the buffer, increment buf index
         sampBuf[ISRvars.writeIdx] = HAL_ADCGetConv();
         ISRvars.writeIdx++;
-        ISRvars.bufFull = (ISRvars.writeIdx == 0);
+        if (SAMPLE_BUF_SIZE == ISRvars.writeIdx) {
+            ISRvars.bufFull = true;
+            ISRvars.writeIdx = 0;
+        }
     }
 #else
     if ((ISRvars.writeIdx > 0) || ((0 == SM.readIdx))) {       /* Equivalent to checking if write-index is NOT waiting at 0
