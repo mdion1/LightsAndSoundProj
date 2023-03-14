@@ -34,7 +34,7 @@ static const uint16_t NLog2SampCntLookup[1 << LOG_TABLE_BITDEPTH] = {
 /* Private function declarations */
 
 static uint16_t NLog2(uint16_t val);
-static uint16_t NPow2(uint16_t val);
+static uint8_t NPow2(uint16_t val);
 static uint8_t countLeadingZeroesInt8(uint8_t x);
 static uint8_t countLeadingZeroesInt16(uint16_t x);
 static uint32_t abs32(int32_t x);
@@ -73,14 +73,20 @@ uint8_t AmpToBrightness(int32_t sin, int32_t cos, uint8_t numCycles)
     //                                   = log(amp) + const - log(numCycles*scalar) + log(scalar)   (where scalar is added to reduce rounding error)
     //uint16_t LogNumCycles = NLog2(numCycles << SCALAR_FOR_ROUNDING) - SCALAR_FOR_ROUNDING*N; //todo: do I need to bitshift this some amount
     
-    uint16_t NLog2SampCnt = NLog2SampCntLookup[numCycles - 1];       // index bounds have already been checked
-    return (uint8_t)NPow2(NLogHypot + NLog2SampCnt);
+    NLogHypot += NLog2SampCntLookup[numCycles - 1];       // index bounds have already been checked
+    if (NLogHypot <= 32) //the 32 corresponds to 64*log2(sqrt(2)), since if sin = cos = max input value, amp = sqrt(sin^2 + cos^2) = sqrt(2) * max value
+    {
+        return 0;
+    }
+    NLogHypot -= 32;
+    
+    return NPow2(NLogHypot);
 }
 
 /* Private function definitions */
 
 /* returns base2 logarithm multiplied by N (where N is defined in some macro???) */
-uint16_t NLog2(uint16_t val)
+static uint16_t NLog2(uint16_t val)
 {
     int16_t MSBit = 15 - countLeadingZeroesInt16(val);
 
@@ -100,7 +106,7 @@ uint16_t NLog2(uint16_t val)
     return ((uint16_t)MSBit << LOG_TABLE_PRECISION) + NLog2Lookup[LSBits];
 }
 
-uint16_t NPow2(uint16_t val)
+static uint8_t NPow2(uint16_t val)
 {
     // assumes value between 0 - 1024 (10-bit number)
     // comes from log table lookup:
