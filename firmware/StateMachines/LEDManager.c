@@ -107,16 +107,21 @@ static uint8_t LPF_pushVal(uint8_t x)
      *      Y = y / alpha
      *      Y_new = Y - alpha * Y + x
      * 
-     * For an LED refresh rate of ~30Hz, an alpha value of 1/8 works out to a
+     * Filter corner frequency = -(Refresh rate)*ln(1-alpha)
+     * For an LED refresh rate of ~30Hz:
+     *      alpha   filter corner
+     *              frequency (Hz)
+     *      1/16        1.9
+     *      1/8         4.0
+     *      1/4         8.6
+     *      1/2         20.8
+     * 
+     *  an alpha value of 1/8 works out to a
      * filter corner frequency of ~4Hz.
      */
-#if 0//#ifdef USE_LPF_FILTER
-    //SM.LPFsum += x - (SM.LPFsum >> 3);
-    //return (SM.LPFsum + 4) >> 3;  // add 4 to round up
-    
-    SM.LPFsum += x - (SM.LPFsum >> 2);
-    return (SM.LPFsum + 2) >> 2;  // add 2 to round up
-#else
-    return x;
-#endif
+//#define LOG2_ALPHA 2
+#define LOG2_ALPHA 1
+#define ROUNDUP_BIT 0// (1 << (LOG2_ALPHA - 1))
+    SM.LPFsum += x - (SM.LPFsum >> LOG2_ALPHA);
+    return (SM.LPFsum + ROUNDUP_BIT) >> LOG2_ALPHA;
 }

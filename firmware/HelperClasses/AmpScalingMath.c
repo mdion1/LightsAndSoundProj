@@ -112,6 +112,12 @@ static uint8_t NPow2(uint16_t val)
     // comes from log table lookup:
     //      log2(uint16) < 16
     //      64 * log2(uint16) = (4-bit number) << (6-bit-depth table len) = 10 bit number
+    
+    /* Cap max value */
+    if (val > 1023) {
+        val = 1023;
+    }
+
     uint8_t bitshift = val >> (LOG_TABLE_BITDEPTH);
     uint8_t LSBits = TABLE_IDX_MASK & val;
     if (bitshift >= LOG_TABLE_PRECISION) {

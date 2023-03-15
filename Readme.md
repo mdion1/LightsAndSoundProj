@@ -4,7 +4,7 @@
 
 The purpose of this project was to create low-cost devices for art or music installations. Each individual device can be "tuned" (hard-coded) to any musical note between C2 (65.4Hz) and C6 (1046.5Hz), and when it detects that note via its onboard microphone, it exits sleep mode and lights up a tricolor LED. The brightness of the LED is proportional to the sound amplituded of the musical note. The color drifts slowly between randomized points on the color wheel.
 
-Each device runs off of a CR2032 coin cell. The PCB is a 1-inch diameter circle. Current medium-quantity unit costs are ~$3.25 for the PCB, components, and assembly, not including the coin cell.
+Each device runs off of a CR2032 coin cell. The PCB is a 1-inch diameter circle. Current medium-quantity unit costs are ~$3.25 for the PCB, components, and assembly, not including the coin cell. I'm hoping to get the unit cost under $3 in future revisions!
 
 By programming several of these devices to different musical notes, you can make a lightup array that responds to music!
 
@@ -30,5 +30,7 @@ To allow flexibility in microcontroller selection, the firmware is divided into 
 The timer-triggered ADC uses interrupts to move samples to a buffer. SigSamp_tasks() performs the single-bin DFT. LEDMgr_tasks() updates the brightness and color at a refresh rate of ~30Hz. Sleep_tasks() puts the microcontroller to sleep during sampling when no sampling processing is occuring. If the signal amplitude is below the hard-coded threshold for a specified amount of time, the microphone and gain stage are shut down, and the microcontroller sleeps. It periodically wakes and enables the mic/amp to check sound levels. The sleep interval gradually increases from ~10ms to ~6seconds if the note amplitude remains below the threshold.
 
 The HAL interface controls the sleep and sampling timers, the ADC, the low-power features, and the PWM module for driving the LED's.
+
+//todo: helper classes, programming pogo pins + assembly, exponential/log overview, sampling theory
 
 The repository also includes an MPLAB X project named "PIC18build.X."
