@@ -6,7 +6,7 @@
 #include "../HAL/HAL_sleep.h"
 #include "../HAL/HAL_GPIO.h"    //todo include ./ as h file include directory
 #include "../HelperClasses/AmpScalingMath.h"
-#define SIGNAL_STRENGTH_CUTOFF 0//1234 /*! \todo move this into SamplingParams.h */
+#define SIGNAL_STRENGTH_CUTOFF 255//1234 /*! \todo move this into SamplingParams.h */
 
 /* Private variable declarations */
 #define LOWSIG_THRESH_CNT_MAX 4
@@ -36,7 +36,7 @@ void Sleep_init()
 void Sleep_tasks()
 {
     uint8_t timebase = SigSamp_getTimebase();
-    if (timebase - SM.t_prev < SLEEP_TASKS_UPDATE_INTERVAL) {
+    if ((uint8_t)(timebase - SM.t_prev) < SLEEP_TASKS_UPDATE_INTERVAL) {
         return;
     }
     SM.t_prev = timebase;

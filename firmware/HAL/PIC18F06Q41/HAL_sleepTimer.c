@@ -8,12 +8,7 @@
 #define TMR0_CLOCK_DIV_128  7
 #define TMR0_CLOCK_DIV_64   6
 
-void HAL_sleepTimerInit(void)
-{
-    PMD1 &= ~(0x01);    //Clear Timer0's peripheral module disable bit */
-    T0CON1bits.CS = 0b100;  // Clock source = 31kHz LFINTOSC
-    T0CON1bits.ASYNC = 1;   // Enable asynchronous mode, so timer can operate during sleep
-}
+void HAL_sleepTimerInit(void){} // do nothing
 
 void HAL_sleepTimerSetInterval(SleepTimerInt_t interval)
 {
@@ -60,6 +55,7 @@ void HAL_sleepTimerSetInterval(SleepTimerInt_t interval)
 
 void HAL_sleepTimerStart(void)
 {
+    TMR0L = 0;          // Reset count
     T0CON0bits.EN = 1;  // Start timer
 }
 void HAL_SleepTimerEnable(bool en)
@@ -67,6 +63,8 @@ void HAL_SleepTimerEnable(bool en)
     /* Set/clear Timer0's peripheral module disable bit */
     if (en) {
         PMD1 &= ~(0x01);
+        T0CON1bits.CS = 0b100;  // Clock source = 31kHz LFINTOSC
+        T0CON1bits.ASYNC = 1;   // Enable asynchronous mode, so timer can operate during sleep
     }
     else {
         T0CON0bits.EN = 0;  // Stop timer

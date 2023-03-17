@@ -46,9 +46,9 @@ void LEDMgr_enable(void)
 
 void LEDMgr_tasks(void)
 {
-    uint16_t timebase = SigSamp_getTimebase();
+    uint8_t timebase = SigSamp_getTimebase();
 
-    if (timebase - SM.tPrev < LED_REFRESH_INTERVAL) {
+    if ((uint8_t)(timebase - SM.tPrev) < LED_REFRESH_INTERVAL) {
         return;
     }
 
