@@ -41,6 +41,7 @@ void LEDMgr_disable(void)
 void LEDMgr_enable(void)
 {
     SM.LPFsum = 0;
+    SM.tPrev = 0;   //reset local state machine's time count
     HAL_PWMEnable(true);
 }
 
