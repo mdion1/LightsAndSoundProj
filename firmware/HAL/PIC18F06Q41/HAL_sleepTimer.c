@@ -20,31 +20,31 @@ void HAL_sleepTimerSetInterval(SleepTimerInt_t interval)
             // Invalid value, return
             return;
         case SLEEP_INT_AFESTAGE_POWERUP:
-            period = 6;     // 10.3ms
+            period = 72;     // 151ms
             break;
         case SLEEP_INT_1:
-            period = 49;    // 99.1ms
+            period = 47;    // 99.1ms
             break;
         case SLEEP_INT_2:
-            period = 98;    // 200ms
+            period = 96;    // 200ms
             break;
         case SLEEP_INT_3:
-            period = 195;   // 400ms
+            period = 193;   // 400ms
             break;
         case SLEEP_INT_4:
-            period = 195;   // 800ms
+            period = 193;   // 800ms
             prescaler = TMR0_CLOCK_DIV_128;
             break;
         case SLEEP_INT_5:
-            period = 195;   // 1.60s
+            period = 193;   // 1.60s
             prescaler = TMR0_CLOCK_DIV_256;
             break;
         case SLEEP_INT_6:
-            period = 195;   // 3.20s
+            period = 193;   // 3.20s
             prescaler = TMR0_CLOCK_DIV_512;
             break;
         case SLEEP_INT_7:
-            period = 195;   // 6.40s
+            period = 193;   // 6.40s
             prescaler = TMR0_CLOCK_DIV_1024;
             break;
     }
