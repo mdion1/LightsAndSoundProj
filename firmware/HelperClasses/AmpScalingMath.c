@@ -1,6 +1,11 @@
 #include "AmpScalingMath.h"
 
 /* Private variable declarations */
+#ifdef __XC8__
+#define LITTLE_ENDIAN
+#else
+#error "Must define endianness!"
+#endif
 
 #define SCALAR_FOR_ROUNDING 0
 #define NUM_CYCLES_OFFSET 0
@@ -31,15 +36,33 @@ static const uint16_t NLog2SampCntLookup[1 << LOG_TABLE_BITDEPTH] = {
     25, 23, 21, 19, 17, 16, 14, 12, 11, 9, 8, 6, 4, 3, 1, 0
 };
 
+static const uint8_t CLZLookup[16] = {
+    4,  // 0b0000
+    3,  // 0b0001
+    2,  // 0b0010
+    2,
+    1,  // 0b0100
+    1,
+    1,
+    1,
+    0,  // 0b1000
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,  // 0b1111
+};
+
 /* Private function declarations */
 
-static uint16_t NLog2(uint16_t val);
-static uint8_t NPow2(uint16_t val);
+static uint16_t NLog2(uint32_t val);
+static uint16_t NPow2(uint16_t val);
 static uint8_t countLeadingZeroesInt8(uint8_t x);
-static uint8_t countLeadingZeroesInt16(uint16_t x);
+static uint8_t countLeadingZeroesInt32(uint32_t x);
 static uint32_t abs32(int32_t x);
-static uint16_t square8(uint8_t a);
-static uint16_t mult8x8(uint8_t a, uint8_t b);
+static uint32_t square16(uint16_t a);
 
 /* Public function definitions */
 
@@ -59,11 +82,11 @@ uint8_t AmpToBrightness(int32_t sin, int32_t cos, uint8_t numCycles)
      *          x / 2 = 64*log2(hypotenuse)
      *      -
      */
-    uint16_t sin2 = square8(abs32(sin) >> 10);
-    uint16_t cos2 = square8(abs32(cos) >> 10);
+    uint32_t sin2 = square16(abs32(sin) >> 2);
+    uint32_t cos2 = square16(abs32(cos) >> 2);
     
     // divide by two to prevent overflow, then add. Result is 16 bits max.
-    uint16_t hypot2 = (sin2 >> 1) + (cos2 >> 1);
+    uint32_t hypot2 = (sin2 >> 1) + (cos2 >> 1);
     uint16_t NLogHypot = NLog2(hypot2);
     if (NLogHypot == 0) {
         return 0;
@@ -82,35 +105,48 @@ uint8_t AmpToBrightness(int32_t sin, int32_t cos, uint8_t numCycles)
         return 0;
     }
     NLogHypot -= 32;
-    
-    return NPow2(NLogHypot);
+
+#define LOG2MIN 5   // 32
+#define LOG2MAX 12  // 4096
+#if (16 < LOG2MAX)
+#error "LOG2MAX must be <= 16
+#endif
+#if (LOG2MAX + LOG2MIN < 16)
+#error "(LOG2MAX + LOG2MIN) must be >= 16"
+#endif
+
+    uint16_t ampScaled = NPow2(NLogHypot);
+    ampScaled >>= 16 - LOG2MAX;
+    ampScaled = (ampScaled > 255) ? 255 : ampScaled;
+    if (ampScaled < (1 << (LOG2MIN + LOG2MAX - 16))) {
+        return 0;
+    }
+    return (uint8_t)ampScaled;
 }
 
 /* Private function definitions */
 
 /* returns base2 logarithm multiplied by N (where N is defined in some macro???) */
-static uint16_t NLog2(uint16_t val)
+static uint16_t NLog2(uint32_t val)
 {
-    int16_t MSBit = 15 - countLeadingZeroesInt16(val);
-
-    if (MSBit < 0) {
+    if (!val) {
         return 0;
     }
-    
+
+    uint16_t MSBit = 31 - countLeadingZeroesInt32(val);
     uint8_t LSBits = 0;
-    val &= ~(1 << MSBit);   // mask off upper bit
     if (MSBit >= LOG_TABLE_BITDEPTH) {
         LSBits = val >> (MSBit - LOG_TABLE_BITDEPTH);
     }
     else {
         LSBits = val << (LOG_TABLE_BITDEPTH - MSBit);    // can't bitshift by a negative number of bits
     }
-    LSBits &= TABLE_IDX_MASK;
+    LSBits &= TABLE_IDX_MASK;   // mask off upper bit
 
-    return ((uint16_t)MSBit << LOG_TABLE_PRECISION) + NLog2Lookup[LSBits];
+    return (MSBit << LOG_TABLE_PRECISION) + NLog2Lookup[LSBits];
 }
 
-static uint8_t NPow2(uint16_t val)
+static uint16_t NPow2(uint16_t val)
 {
     // assumes value between 0 - 1024 (10-bit number)
     // comes from log table lookup:
@@ -118,9 +154,10 @@ static uint8_t NPow2(uint16_t val)
     //      64 * log2(uint16) = (4-bit number) << (6-bit-depth table len) = 10 bit number
     
     /* Cap max value */
-    if (val > 1023) {
-        val = 1023;
-    }
+    //if (val > 1023) {
+    //    val = 1023;
+    //}
+    //TODO
 
     uint8_t bitshift = val >> (LOG_TABLE_BITDEPTH);
     uint8_t LSBits = TABLE_IDX_MASK & val;
@@ -132,28 +169,32 @@ static uint8_t NPow2(uint16_t val)
     }
 }
 
-static uint8_t countLeadingZeroesInt16(uint16_t x)
-{
-    uint8_t leadingZeroes = countLeadingZeroesInt8(x >> 8); //check MSByte
-    if (leadingZeroes < 8)
-    {
-        return leadingZeroes;
-    }
-    return countLeadingZeroesInt8((uint8_t)x) + 8;
-}
-
 static uint8_t countLeadingZeroesInt8(uint8_t x)
 {
-    uint8_t pos = 8;
-    uint8_t mask = 0x80;
-    while(pos) {
-        if (x & mask) {
+    uint8_t lower = CLZLookup[(x & 0x0f)];
+    uint8_t upper = CLZLookup[(x >> 4)];
+    return upper + ((upper == 4) * lower);      // if upper == 4, add lower; otherwise, return upper
+}
+
+static uint8_t countLeadingZeroesInt32(uint32_t x)
+{
+    /* Start from MSByte, continue if all zeroes */
+    uint8_t clz = 0;
+#ifdef LITTLE_ENDIAN
+    for (int8_t i = 3; i >= 0; i--) {
+#elif defined BIG_ENDIAN
+    for (int8_t i = 0; i < 4; i++) {
+#endif
+        uint8_t zeros = countLeadingZeroesInt8(((uint8_t*)&x)[i]);
+        clz += zeros;
+        if (zeros == 8) {
+            continue;
+        }
+        else {
             break;
         }
-        pos--;
-        mask >>= 1;
     }
-    return 8 - pos;
+    return clz;
 }
 
 static uint32_t abs32(int32_t x)
@@ -164,10 +205,6 @@ static uint32_t abs32(int32_t x)
         );
 }
 
-static uint16_t square8(uint8_t a) {
+static uint32_t square16(uint16_t a) {
     return a * a;
-}
-
-static uint16_t mult8x8(uint8_t a, uint8_t b) {
-    return a * b;
 }
