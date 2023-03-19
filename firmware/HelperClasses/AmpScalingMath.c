@@ -64,8 +64,11 @@ uint8_t AmpToBrightness(int32_t sin, int32_t cos, uint8_t numCycles)
     
     // divide by two to prevent overflow, then add. Result is 16 bits max.
     uint16_t hypot2 = (sin2 >> 1) + (cos2 >> 1);
-    uint16_t NLogHypot = (NLog2(hypot2) + (1 << LOG_TABLE_BITDEPTH)) / 2;       //add (1<<LOG_TABLE_BITDEPTH) to counteract previous divide-by-two, since 64
-
+    uint16_t NLogHypot = NLog2(hypot2);
+    if (NLogHypot == 0) {
+        return 0;
+    }
+    NLogHypot = (NLogHypot + (1 << LOG_TABLE_BITDEPTH)) / 2;       //add (1<<LOG_TABLE_BITDEPTH) to counteract previous divide-by-two, since 64
     // todo: now scale log(amp) based on the number of cycles used from the filter/buffer (so there doesn't need to be amplitude rollup @ startup)
     // for example, subtract a number proportional to the number of samples in the buffer, so that for a low number of cycles log(N) doesn't decrease much
     // (essentially what we're doing is:
@@ -93,8 +96,9 @@ static uint16_t NLog2(uint16_t val)
     if (MSBit < 0) {
         return 0;
     }
-
+    
     uint8_t LSBits = 0;
+    val &= ~(1 << MSBit);   // mask off upper bit
     if (MSBit >= LOG_TABLE_BITDEPTH) {
         LSBits = val >> (MSBit - LOG_TABLE_BITDEPTH);
     }
