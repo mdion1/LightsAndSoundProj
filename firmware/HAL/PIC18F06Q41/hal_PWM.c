@@ -23,21 +23,22 @@
 
 void HAL_initPWM()
 {
-    PMD3 &= 0b11111000;     // Clear Peripheral Module Disable bits
-    
-    /* Set clock source and period */
-    PWM1CLK = 3; //HFINTOSC
-    PWM2CLK = 3;
-    PWM1PR = PWM_PERIOD;
-    PWM2PR = PWM_PERIOD;
+    // do nothing
 }
 
 void HAL_PWMEnable(bool en)
 {
     if (en)
     {
-        PWMEN = 0b011;          // Enable PWM1 and PWM2
         PMD3 &= 0b11111000;     // Clear Peripheral Module Disable bits
+        
+        PWMEN = 0b011;          // Enable PWM1 and PWM2
+        
+        /* Set clock source and period */
+        PWM1CLK = 3; //HFINTOSC
+        PWM2CLK = 3;
+        PWM1PR = PWM_PERIOD;
+        PWM2PR = PWM_PERIOD;
         
         // Assign GPIO's using the Peripheral Pin Select registers
         RC0PPS = PWM1S1P1_OUT;  // Red channel
