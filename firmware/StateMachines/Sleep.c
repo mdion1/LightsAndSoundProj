@@ -103,6 +103,8 @@ static void onDeepSleepWake(void)
     
     // Enable PWM, reset LEDMgr state machine
     LEDMgr_enable();
+    
+    SM.t_prev = 0; // SigSamp_start() resets "time base" (sample count), so reset local state machine's time count
 }
 
 static void blockingSleep(SleepTimerInt_t sleepLevel)
