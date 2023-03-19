@@ -14,6 +14,17 @@
 #define LOG_TABLE_PRECISION 6
 #define LOG_TABLE_LEN ((uint8_t)(1 << LOG_TABLE_BITDEPTH))
 #define TABLE_IDX_MASK ((uint8_t)((1 << LOG_TABLE_BITDEPTH) - 1))
+#define NPOW2_MAXINPUT ((16 << LOG_TABLE_BITDEPTH) - 1)
+
+
+#define MIN_AMP_THRESH 256
+#define LOG2_MAX_AMP 14
+#if (16 < LOG2_MAX_AMP)
+#error "LOG2MAX must be <= 16
+#endif
+#if ((1 << LOG2_MAX_AMP) < MIN_AMP_THRESH)
+#error "2^LOG2MAX must be greater than LOG2MIN."
+#endif
 
 static const uint8_t NLog2Lookup[1 << LOG_TABLE_BITDEPTH] = {
     0, 1, 3, 4, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 19,
@@ -88,40 +99,37 @@ uint8_t AmpToBrightness(int32_t sin, int32_t cos, uint8_t numCycles)
     // divide by two to prevent overflow, then add. Result is 16 bits max.
     uint32_t hypot2 = (sin2 >> 1) + (cos2 >> 1);
     uint16_t NLogHypot = NLog2(hypot2);
+    NLogHypot >>= 1;        //divide by two to get square root
     if (NLogHypot == 0) {
         return 0;
     }
-    NLogHypot = (NLogHypot + (1 << LOG_TABLE_BITDEPTH)) / 2;       //add (1<<LOG_TABLE_BITDEPTH) to counteract previous divide-by-two, since 64
-    // todo: now scale log(amp) based on the number of cycles used from the filter/buffer (so there doesn't need to be amplitude rollup @ startup)
-    // for example, subtract a number proportional to the number of samples in the buffer, so that for a low number of cycles log(N) doesn't decrease much
-    // (essentially what we're doing is:
-    //          log(Amp *64 / NumCycles) = log(amp) + const - log(numCycles)
-    //                                   = log(amp) + const - log(numCycles*scalar) + log(scalar)   (where scalar is added to reduce rounding error)
-    //uint16_t LogNumCycles = NLog2(numCycles << SCALAR_FOR_ROUNDING) - SCALAR_FOR_ROUNDING*N; //todo: do I need to bitshift this some amount
+    NLogHypot += NLog2SampCntLookup[numCycles - 1];       /* Normalize/scale up the signal for smaller
+                                                           * number of samples (index bounds have already been checked for LUT idx). */
     
-    NLogHypot += NLog2SampCntLookup[numCycles - 1];       // index bounds have already been checked
-    if (NLogHypot <= 32) //the 32 corresponds to 64*log2(sqrt(2)), since if sin = cos = max input value, amp = sqrt(sin^2 + cos^2) = sqrt(2) * max value
-    {
+    /* To counteract the previous divide-by-two (to prevent overflow),
+     * we must add (1<<LOG_TABLE_BITDEPTH) / 2
+     * However, we must also subtract 32, since 64*log2(sqrt(2)) = 2,
+     * and if sin = cos = max input value, amp = sqrt(sin^2 + cos^2) = sqrt(2) * max value.
+     */
+#if ((1 << (LOG_TABLE_BITDEPTH - 1)) - 32) > 0
+    NLogHypot += (1 << (LOG_TABLE_BITDEPTH - 1)) - 32;
+#elif ((1 << (LOG_TABLE_BITDEPTH - 1)) - 32) < 0
+    if (NLogHypot >= 32 - (1 << (LOG_TABLE_BITDEPTH - 1))) {
         return 0;
     }
-    NLogHypot -= 32;
-
-#define LOG2MIN 5   // 32
-#define LOG2MAX 12  // 4096
-#if (16 < LOG2MAX)
-#error "LOG2MAX must be <= 16
-#endif
-#if (LOG2MAX + LOG2MIN < 16)
-#error "(LOG2MAX + LOG2MIN) must be >= 16"
+    NLogHypot -= 32 - (1 << (LOG_TABLE_BITDEPTH - 1));
+#elif     ((1 << (LOG_TABLE_BITDEPTH - 1)) - 32) == 0
+    // do nothing
 #endif
 
     uint16_t ampScaled = NPow2(NLogHypot);
-    ampScaled >>= 16 - LOG2MAX;
-    ampScaled = (ampScaled > 255) ? 255 : ampScaled;
-    if (ampScaled < (1 << (LOG2MIN + LOG2MAX - 16))) {
+    if (ampScaled < MIN_AMP_THRESH) {
         return 0;
     }
-    return (uint8_t)ampScaled;
+    if (ampScaled > ((1 << LOG2_MAX_AMP) - 1)) {
+        return 255;
+    }
+    return (uint8_t)(ampScaled >> (16 - LOG2_MAX_AMP));
 }
 
 /* Private function definitions */
@@ -154,12 +162,11 @@ static uint16_t NPow2(uint16_t val)
     //      64 * log2(uint16) = (4-bit number) << (6-bit-depth table len) = 10 bit number
     
     /* Cap max value */
-    //if (val > 1023) {
-    //    val = 1023;
-    //}
-    //TODO
+    if (val > NPOW2_MAXINPUT) {
+        val = NPOW2_MAXINPUT;
+    }
 
-    uint8_t bitshift = val >> (LOG_TABLE_BITDEPTH);
+    uint8_t bitshift = val >> LOG_TABLE_BITDEPTH;
     uint8_t LSBits = TABLE_IDX_MASK & val;
     if (bitshift >= LOG_TABLE_PRECISION) {
         return ((uint16_t)NExp2Lookup[LSBits]) << (bitshift - LOG_TABLE_PRECISION);
@@ -206,5 +213,5 @@ static uint32_t abs32(int32_t x)
 }
 
 static uint32_t square16(uint16_t a) {
-    return a * a;
+    return ((uint32_t)a) * (uint32_t)a;
 }
