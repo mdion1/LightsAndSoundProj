@@ -12,8 +12,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 15      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 255        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 2  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 7  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 8  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 28  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_C2__)
 
@@ -29,8 +29,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 15      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 241        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 2  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 7  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 8  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 28  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_C#/Db2__)
 
@@ -46,8 +46,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 14      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 243        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 2  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 7  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 8  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 28  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_D2__)
 
@@ -63,8 +63,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 13      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 247        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 3  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 8  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 12  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 32  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_D#/Eb2__)
 
@@ -80,8 +80,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 12      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 253        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 3  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 8  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 12  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 32  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_E2__)
 
@@ -97,8 +97,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 12      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 239        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 3  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 9  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 12  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 36  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_F2__)
 
@@ -114,8 +114,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 11      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 246        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 3  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 9  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 12  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 36  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_F#/Gb2__)
 
@@ -131,8 +131,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 10      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 255        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 3  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 10  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 12  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 40  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_G2__)
 
@@ -148,8 +148,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 10      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 241        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 3  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 10  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 12  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 40  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_G#Ab2__)
 
@@ -165,8 +165,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 9      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 253        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 4  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 11  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 16  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 44  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_A2__)
 
@@ -182,8 +182,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 9      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 238        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 4  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 12  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 16  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 48  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_A#/Bb2__)
 
@@ -199,8 +199,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 8      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 253        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 4  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 12  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 16  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 48  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_B2__)
 
@@ -216,8 +216,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 8      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 239        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 4  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 13  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 16  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 52  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_C3__)
 
@@ -233,8 +233,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 8      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 225        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 5  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 14  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 20  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 56  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_C#/Db3__)
 
@@ -250,8 +250,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 7      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 243        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 5  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 15  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 20  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 60  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_D3__)
 
@@ -267,8 +267,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 7      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 230        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 5  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 16  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 20  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 64  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_D#/Eb3__)
 
@@ -284,8 +284,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 6      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 253        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 5  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 16  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 20  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 64  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_E3__)
 
@@ -301,8 +301,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 6      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 239        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 6  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 17  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 24  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 68  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_F3__)
 
@@ -318,8 +318,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 6      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 225        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 6  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 18  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 24  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 72  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_F#/Gb3__)
 
@@ -335,8 +335,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 5      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 255        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 7  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 20  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 28  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 80  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_G3__)
 
@@ -352,8 +352,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 5      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 241        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 7  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 21  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 28  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 84  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_G#Ab3__)
 
@@ -369,8 +369,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 5      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 227        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 7  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 22  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 28  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 88  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_A3__)
 
@@ -386,8 +386,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 5      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 215        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 8  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 23  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 32  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 92  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_A#/Bb3__)
 
@@ -403,8 +403,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 4      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 253        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 8  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 25  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 32  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 100  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_B3__)
 
@@ -420,8 +420,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 4      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 239        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 9  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 26  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 36  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 104  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_C4__)
 
@@ -437,8 +437,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 4      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 225        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 9  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 28  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 36  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 112  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_C#/Db4__)
 
@@ -454,8 +454,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 4      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 213        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 10  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 29  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 40  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 116  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_D4__)
 
@@ -471,8 +471,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 4      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 201        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 10  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 31  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 40  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 124  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_D#/Eb4__)
 
@@ -488,8 +488,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 3      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 253        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 11  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 33  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 44  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 132  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_E4__)
 
@@ -505,8 +505,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 3      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 239        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 12  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 35  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 48  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 140  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_F4__)
 
@@ -522,8 +522,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 3      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 225        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 12  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 37  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 48  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 148  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_F#/Gb4__)
 
@@ -539,8 +539,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 3      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 213        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 13  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 39  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 52  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 156  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_G4__)
 
@@ -556,8 +556,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 3      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 201        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 14  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 42  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 56  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 168  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_G#Ab4__)
 
@@ -573,8 +573,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 3      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 189        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 15  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 44  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 60  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 176  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_A4__)
 
@@ -590,8 +590,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 3      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 179        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 16  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 47  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 64  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 188  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_A#/Bb4__)
 
@@ -607,8 +607,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 2      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 253        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 16  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 49  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 64  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 196  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_B4__)
 
@@ -624,8 +624,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 2      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 239        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 17  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 52  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 68  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 208  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_C5__)
 
@@ -641,8 +641,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 2      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 225        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 18  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 55  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 72  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 220  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_C#/Db5__)
 
@@ -658,8 +658,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 2      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 213        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 20  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 59  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 80  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 236  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_D5__)
 
@@ -675,8 +675,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 2      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 201        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 21  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 62  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 84  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 248  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_D#/Eb5__)
 
@@ -692,8 +692,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 2      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 190        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 22  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 64  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 88  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 255  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_E5__)
 
@@ -709,8 +709,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 2      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 179        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 23  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 64  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 92  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 255  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_F5__)
 
@@ -726,8 +726,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 2      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 169        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 25  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 64  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 100  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 255  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_F#/Gb5__)
 
@@ -743,8 +743,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 2      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 159        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 26  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 64  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 104  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 255  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_G5__)
 
@@ -760,8 +760,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 2      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 150        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 28  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 64  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 112  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 255  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_G#Ab5__)
 
@@ -777,8 +777,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 2      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 142        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 29  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 64  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 116  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 255  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_A5__)
 
@@ -794,8 +794,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 2      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 134        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 31  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 64  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 124  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 255  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_A#/Bb5__)
 
@@ -811,8 +811,8 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 1      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 253        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 33  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 64  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 132  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 255  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_B5__)
 
@@ -828,8 +828,7 @@
 #define TSAMP_PRESCALER 0       //prescaler 1:(2^(N-1))
 #define TSAMP_POSTSCALER 1      //postscaler 1:(N + 1)
 #define TSAMP_PERIOD 239        //sampling period = N+1
-#define LED_REFRESH_INTERVAL 35  // Number of signal periods per LED update calculation
-#define SLEEP_TASKS_UPDATE_INTERVAL 64  // Number of signal periods evaluated in sleep tasks calculation
+#define LED_REFRESH_INTERVAL 140  // Number of ADC samples per LED update calculation
+#define SLEEP_TASKS_UPDATE_INTERVAL 255  // Number of ADC samples evaluated in sleep tasks calculation
 
 #endif // (#ifdef __NOTE_C6__)
-

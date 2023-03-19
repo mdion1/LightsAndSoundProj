@@ -135,13 +135,14 @@ class textFmt:
         self.period = period
 
         # Calculate sample averaging and LED brightness update rates
-        self.NCyclesPerRefresh = round(self.note.getFreq() / LED_REFRESH_RATE)
-        self.FourierSumArrayLen = math.ceil(self.NCyclesSampled / self.NCyclesPerRefresh)
+        NCyclesPerRefresh = round(self.note.getFreq() / LED_REFRESH_RATE)
+        self.FourierSumArrayLen = math.ceil(self.NCyclesSampled / NCyclesPerRefresh)
+        self.NSamplesPerRefresh = min(NCyclesPerRefresh * 4, RELATIVE_FSAMP * NUM_PERIODS_SUMMED - 1)
 
         # Calculate wake test sampling interval
         wakeTestSampPeriod = min(WAKE_TEST_SAMPLING_PERIOD, self.NCyclesSampled * TSig)      # wakeTestSampPeriod should not exceed (Ncycles * signal period)
-        self.NCyclesPerWakeSampPeriod = round(wakeTestSampPeriod / TSig)
-        
+        NCyclesPerWakeSampPeriod = round(wakeTestSampPeriod / TSig)
+        self.NSamplesPerWakeSampPeriod = min(NCyclesPerWakeSampPeriod * 4, RELATIVE_FSAMP * NUM_PERIODS_SUMMED - 1)
 
         return
 
@@ -186,11 +187,11 @@ class textFmt:
         #             + '#define CYCLE_SUM_RIGHTSHIFT {}\n'.format(self.CycleSumRightShift)
 
         # Add macros for LED update rate
-        outStr += '#define LED_REFRESH_INTERVAL {}  // Number of signal periods per LED update calculation\n'.format(self.NCyclesPerRefresh)
+        outStr += '#define LED_REFRESH_INTERVAL {}  // Number of ADC samples per LED update calculation\n'.format(self.NSamplesPerRefresh)
         #            + '#define FOURIER_ACCUM_BUFLEN {}      //\n'.format(self.FourierSumArrayLen)    \
 
         # Add macros for sleep tasks update interval
-        outStr += '#define SLEEP_TASKS_UPDATE_INTERVAL {}  // Number of signal periods evaluated in sleep tasks calculation\n'.format(self.NCyclesPerWakeSampPeriod)
+        outStr += '#define SLEEP_TASKS_UPDATE_INTERVAL {}  // Number of ADC samples evaluated in sleep tasks calculation\n'.format(self.NSamplesPerWakeSampPeriod)
 
         outStr += '\n#endif // (#ifdef __NOTE_{}__)'.format(self.note.toStr())
         return outStr
