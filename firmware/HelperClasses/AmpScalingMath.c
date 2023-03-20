@@ -7,18 +7,18 @@
 #error "Must define endianness!"
 #endif
 
-#define SCALAR_FOR_ROUNDING 0
-#define NUM_CYCLES_OFFSET 0
-
 #define LOG_TABLE_BITDEPTH 6
 #define LOG_TABLE_PRECISION 6
 #define LOG_TABLE_LEN ((uint8_t)(1 << LOG_TABLE_BITDEPTH))
 #define TABLE_IDX_MASK ((uint8_t)((1 << LOG_TABLE_BITDEPTH) - 1))
 #define NPOW2_MAXINPUT ((16 << LOG_TABLE_BITDEPTH) - 1)
 
-
-#define MIN_AMP_THRESH 256
-#define LOG2_MAX_AMP 14
+#define MIN_AMP_THRESH 256      /** This defines the minimum detected amptlitude, below which signals will be ignored.
+                                 *  This corresponds to the (unsigned) 16-bit range that AmpToBrightness() calculates
+                                 *  before truncating the results to the (unsigned) 8-bit result. */
+#define LOG2_MAX_AMP 14         /** This defines the MSBit utilized in the 16-bit amplitude results that AmpToBrightness()
+                                 *  calculates. For bit N defined, bits (N-8) through (N-1) are returned from the function.
+                                 *  For amplitudes greather than ((1<<N) - 1), the function just returns UINT8_MAX. */
 #if (16 < LOG2_MAX_AMP)
 #error "LOG2MAX must be <= 16
 #endif
@@ -123,13 +123,15 @@ uint8_t AmpToBrightness(int32_t sin, int32_t cos, uint8_t numCycles)
 #endif
 
     uint16_t ampScaled = NPow2(NLogHypot);
+    
+#if MIN_AMP_THRESH > (1 << (LOG2_MAX_AMP - 8))  /* No need to check if ampliutde < threshold if these values are
+                                                 * being truncated anyway. */
     if (ampScaled < MIN_AMP_THRESH) {
         return 0;
     }
-    if (ampScaled > ((1 << LOG2_MAX_AMP) - 1)) {
-        return 255;
-    }
-    return (uint8_t)(ampScaled >> (16 - LOG2_MAX_AMP));
+#endif
+    ampScaled >>= LOG2_MAX_AMP - 8;  // use only the 8 bits extending to from (LOG2_MAX_AMP - 8) to (LOG2_MAX_AMP - 1)
+    return (uint8_t)((ampScaled > 255) ? 255 : ampScaled);
 }
 
 /* Private function definitions */
