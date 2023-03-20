@@ -5,3 +5,4 @@ firmware/PIC18build.X/**/*.mk
 firmware/PIC18build.X/**/*.properties
 firmware/PIC18build.X/**/*.bash
 **/__pycache__/
+firmware/PIC18build.X/.ca/
