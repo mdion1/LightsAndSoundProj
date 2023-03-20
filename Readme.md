@@ -1,7 +1,7 @@
 # Project Inspiration
 At a local art convention I met someone selling outdoor lamps consisting of used bottles with LED string lights powered off of small solar cells. The solar-powered string lights were purchased in bulk from an online seller, allowing this artist to focus on her project's aesthetics without having to worry about circuitry.
 
-I wanted to make a kit with the same design spirit: something low-cost, low-power, that could be ordered in bulk, that just worked out of the box, that an artist could play with as they wished. I wanted to make something responsive to the environment -- in this case, ambient sound. I'm imagining arrays of these small PCB's, decorated, housed, or otherwise embedded into some workpiece, lighting up in synchrony with songs or speech.
+I wanted to make a kit with the same design spirit: something low-cost, low-power, that could be ordered in bulk, that just worked out of the box, that an artist could play with as they wished. I wanted to make something responsive to the environment: in this case, ambient sound. I'm imagining arrays of these small PCB's, decorated, housed, or otherwise embedded into some workpiece, lighting up in synchrony with songs or speech.
 
 My goal is to sell batches (maybe in "octaves") of these devices online at cost, once I get the unit cost down a little bit more.
 
@@ -23,16 +23,16 @@ If the sound amplitude is below a certain threshold for too long, the device ent
 
 # Design Files Overview 
 This Github repository contains the following:
--The sub-repository named "NoteDector_PCBA" (at https://github.com/mdion1/NoteDector_PCBA) holds the KiCAD design files for the schematics and board layout. This includes both the main board and the batch programming breakout board.
--The folder titled "Simulations" holds an LTSpice model for the analog front end.
--The gain stage consists of a high-pass filter input into an opamp stage that uses a "Tee configuration," which you can read about in this application note from Texas Instruments: https://www.ti.com/lit/an/sboa284/sboa284.pdf
--The opamp gain circuit has a nominal DC gain of 63dB, but filtering components and opamp gain-bandwidth limits the actual gain depending on the input frequency. There are two versions of the BOM, one with passive filter components best for notes below middle C (65 - 262Hz), and one for notes above middle C (262 - 1047Hz).
--"UsefulScripts" directory: I've included Python scripts that helped me design my firmware, both to show my work as well as to aid anyone who needs to tweak design parameters. Each script has its own Readme that you can refer to for more details.
-	-"SignalSamplingConfigurator": Since each device is hard-coded to a separate audio frequency, I wrote a script to automatically generate the sampling parameters (timer intervals) needed for each chromatic tone in a 4-octave span. Running the script will output the file SamplingParams.h, which holds a series of #define's for each note. All you have to do to select a particular musical note is to define the note name when compiling the firmware.
-	-"FastLogLookupTableGenerator": This shows how I generated the lookup tables for my integer-math log2/power2 functions
-	-"DFTFilterDesign": plots the filter transfer function given DFT design parameters.
-	-"HSVtoRGBtest": the messiest script in the directory, mainly there just to show my process in designing 8- and 16-bit integer-only functions for converting from Hue/Saturation/Value color format to RGB.
--The "Firmware" directory holds the source code as well as an MPLAB X project, since the current board revision uses a PIC18 (8-bit) microcontroller. To allow flexibility in microcontroller selection, the firmware is divided into "business logic" and "HAL interface" sections. All you have to do to use a different microcontroller is to implement the low-level functions defined in the HAL interface.
+- The sub-repository named "NoteDector_PCBA" (at https://github.com/mdion1/NoteDector_PCBA) holds the KiCAD design files for the schematics and board layout. This includes both the main board and the batch programming breakout board.
+- The folder titled "Simulations" holds an LTSpice model for the analog front end.
+- The gain stage consists of a high-pass filter input into an opamp stage that uses a "Tee configuration," which you can read about in this application note from Texas Instruments: https://www.ti.com/lit/an/sboa284/sboa284.pdf
+- The opamp gain circuit has a nominal DC gain of 63dB, but filtering components and opamp gain-bandwidth limits the actual gain depending on the input frequency. There are two versions of the BOM, one with passive filter components best for notes below middle C (65 - 262Hz), and one for notes above middle C (262 - 1047Hz).
+- "UsefulScripts" directory: I've included Python scripts that helped me design my firmware, both to show my work as well as to aid anyone who needs to tweak design parameters. Each script has its own Readme that you can refer to for more details.
+	- "SignalSamplingConfigurator": Since each device is hard-coded to a separate audio frequency, I wrote a script to automatically generate the sampling parameters (timer intervals) needed for each chromatic tone in a 4-octave span. Running the script will output the file SamplingParams.h, which holds a series of #define's for each note. All you have to do to select a particular musical note is to define the note name when compiling the firmware.
+	- "FastLogLookupTableGenerator": This shows how I generated the lookup tables for my integer-math log2/power2 functions
+	- "DFTFilterDesign": plots the filter transfer function given DFT design parameters.
+	- "HSVtoRGBtest": the messiest script in the directory, mainly there just to show my process in designing 8- and 16-bit integer-only functions for converting from Hue/Saturation/Value color format to RGB.
+- The "Firmware" directory holds the source code as well as an MPLAB X project, since the current board revision uses a PIC18 (8-bit) microcontroller. To allow flexibility in microcontroller selection, the firmware is divided into "business logic" and "HAL interface" sections. All you have to do to use a different microcontroller is to implement the low-level functions defined in the HAL interface.
 
 # Power Consumption
 Battery life is heavily dependent on how often the device is in sleep mode, which depends on how low the audio threshold is configured in the firmware. In standby mode, current consumption is 16uA. According to the microcontroller datasheet, I should be able to operate in a lower-power sleep mode with a current draw of 1.5uA if I use the Watchdog Timer instead of the peripheral timer I'm using now. At 16uA standby current, it would take 1.4 years to consume a CR2032 cell's 200mAh capacity. With 1.5uA standby current, it would take over 15 years.
@@ -43,10 +43,10 @@ So with the LED's consuming 1.5mA of their 3mA capacity, the total current consu
 
 # Future Development/State of the Project
 Current project state = jenky, but works. I have tested using a prototype board, but have not gotten to see a full array of these in action. My remaining tasks:
--Tweak the hard-coded sensitivity level for each of the audio frequencies
--Use the watchdog timer during sleep mode instead of the peripheral timer, in order to reduce standby power to 1.5uA.
--Order, assemble, and test the next board revision based on changes I've hacked onto the prototype
--Order, assembly, the batch programming PCB, and design an enclosure/jig to go with it.
--Source a cheaper microcontroller, now that I know how much RAM and flash I need.
--Source a cheaper microphone, possibly a MEM's with lower quiescent power consumption. For this I will probably have to go outside of Digikey and Mouser, as the availability of low cost microphones is limited.
--Source an LED diffuser. The light is a harsh point source, and I may want to offer diffusers built into the design.
+- Tweak the hard-coded sensitivity level for each of the audio frequencies
+- Use the watchdog timer during sleep mode instead of the peripheral timer, in order to reduce standby power to 1.5uA.
+- Order, assemble, and test the next board revision based on changes I've hacked onto the prototype
+- Order, assembly, the batch programming PCB, and design an enclosure/jig to go with it.
+- Source a cheaper microcontroller, now that I know how much RAM and flash I need.
+- Source a cheaper microphone, possibly a MEM's with lower quiescent power consumption. For this I will probably have to go outside of Digikey and Mouser, as the availability of low cost microphones is limited.
+- Source an LED diffuser. The light is a harsh point source, and I may want to offer diffusers built into the design.
