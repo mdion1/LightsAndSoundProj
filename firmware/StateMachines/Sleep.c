@@ -2,11 +2,11 @@
 #include "SamplingParams.h"
 #include "SignalSampling.h"
 #include "LEDManager.h"
-#include "../HAL/HAL_sleepTimer.h"
-#include "../HAL/HAL_sleep.h"
-#include "../HAL/HAL_GPIO.h"    //todo include ./ as h file include directory
-#include "../HelperClasses/AmpScalingMath.h"
-#define SIGNAL_STRENGTH_CUTOFF 1//1234 /*! \todo move this into SamplingParams.h */
+#include "HAL/HAL_sleepTimer.h"
+#include "HAL/HAL_sleep.h"
+#include "HAL/HAL_GPIO.h"
+#include "HelperClasses/AmpScalingMath.h"
+#define SIGNAL_STRENGTH_CUTOFF 1
 
 /* Private variable declarations */
 #define LOWSIG_THRESH_CNT_MAX 4
@@ -25,7 +25,7 @@ static void blockingSleep(SleepTimerInt_t sleepLevel);
 static void onDeepSleepWake(void);
 
 /* Public function definitions */
-void Sleep_init()
+void Sleep_init(void)
 {
     HAL_sleepTimerInit();
     
@@ -80,6 +80,10 @@ void Sleep_tasks()
     HAL_sleep();
 }
 
+void SleepTest(void) {
+    SM.deepSleepDur = SLEEP_INT_7;
+    initDeepSleep();
+}
 
 /* Private function definitions */
 static void initDeepSleep(void)

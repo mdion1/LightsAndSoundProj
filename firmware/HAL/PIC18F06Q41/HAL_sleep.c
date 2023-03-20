@@ -1,5 +1,5 @@
 #ifdef __PIC18F06Q41__
-#include "../HAL_sleep.h"
+#include "HAL/HAL_sleep.h"
 #include <xc.h>
 
 void HAL_sleep()

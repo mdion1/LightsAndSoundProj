@@ -1,5 +1,5 @@
 #ifdef __PIC18F06Q41__
-#include "../HAL_PWM.h"
+#include "HAL/HAL_PWM.h"
 #include <xc.h>
 
 /** PWM allocation

@@ -1,11 +1,11 @@
 #include "LEDManager.h"
-#include "../HelperClasses/HSVtoRGB.h"
-#include "../HelperClasses/LinearRamp.h"
-#include "../HelperClasses/AmpScalingMath.h"
-#include "../HelperClasses/RNG.h"
+#include "HelperClasses/HSVtoRGB.h"
+#include "HelperClasses/LinearRamp.h"
+#include "HelperClasses/AmpScalingMath.h"
+#include "HelperClasses/RNG.h"
 #include "SamplingParams.h"
 #include "SignalSampling.h"
-#include "../HAL/HAL_PWM.h"
+#include "HAL/HAL_PWM.h"
 #include "HAL/HAL_ADC.h"
 
 /* Private variable declarations */
@@ -30,8 +30,6 @@ void LEDMgr_init()
     
     SM.hueRamp = LinRamp_getObj();
     SM.satRamp = LinRamp_getObj();
-
-    //todo: init State machine
 }
 void LEDMgr_disable(void)
 {

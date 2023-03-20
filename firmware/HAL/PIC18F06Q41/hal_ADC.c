@@ -1,6 +1,6 @@
 #ifdef __PIC18F06Q41__
 #include <xc.h>
-#include "../HAL_ADC.h"
+#include "HAL/HAL_ADC.h"
 
 /* For positive channel selection register ADPCH */
 #define ADCINPUTCHAN 0b101          // selects port/pin RA5

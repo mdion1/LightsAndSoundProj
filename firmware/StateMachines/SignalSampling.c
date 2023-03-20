@@ -2,7 +2,7 @@
 #include "SamplingParams.h"
 #include "HAL/HAL_ADC.h"
 #include "HAL/HAL_globalIntMask.h"
-#include "../HelperClasses/WindowAvg.h" // todo: add ./ as include directory
+#include "HelperClasses/WindowAvg.h"
 
 /* Private variable declarations */
 #define SAMPLE_BUF_SIZE 256
@@ -85,7 +85,7 @@ void SigSamp_tasks()
         int16_t sumSin = buf[1] - buf[3];
         int16_t sumCos = buf[0] - buf[2];
         
-        WndAvg_pushVal(&SM.avgSin, sumSin);     /*! \todo: what are the minimum sizes for the WndAvg_pushVal() input arguments? */
+        WndAvg_pushVal(&SM.avgSin, sumSin);
         WndAvg_pushVal(&SM.avgCos, sumCos);
         
         SM.readIdx += 4;

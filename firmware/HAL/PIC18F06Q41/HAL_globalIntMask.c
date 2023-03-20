@@ -1,5 +1,5 @@
 #ifdef __PIC18F06Q41__
-#include "../HAL_globalIntMask.h"
+#include "HAL/HAL_globalIntMask.h"
 #include <xc.h>
 
 /* Public function definitions */

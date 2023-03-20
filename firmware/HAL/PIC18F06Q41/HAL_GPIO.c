@@ -1,5 +1,5 @@
 #ifdef __PIC18F06Q41__
-#include "../HAL_GPIO.h"
+#include "HAL/HAL_GPIO.h"
 #include <xc.h>
 
 /* Board */

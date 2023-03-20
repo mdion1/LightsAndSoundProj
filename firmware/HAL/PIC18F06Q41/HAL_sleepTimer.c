@@ -1,5 +1,5 @@
 #ifdef __PIC18F06Q41__
-#include "../HAL_sleepTimer.h"
+#include "HAL/HAL_sleepTimer.h"
 #include <xc.h>
 
 #define TMR0_CLOCK_DIV_1024 10
