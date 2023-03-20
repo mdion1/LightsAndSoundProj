@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from typing import List
 from TransferFn import TransferFn
 
-class digitalFourierFilt(TransferFn):
+class singleBinDFT(TransferFn):
     def __init__(self, centerFreq: float, samplingFreq: float, NCyclesSampled: int):
         self.fCenter = centerFreq
         self.fSamp = samplingFreq
@@ -24,5 +24,5 @@ class digitalFourierFilt(TransferFn):
 
     def apply(self, frequency: float) -> float:
         y: np.array = np.sin(self.timeData * 2* math.pi * frequency / self.fSamp)
-        return digitalFourierFilt.getAmp(self.timeData, y, self.relativeFreq)
+        return singleBinDFT.getAmp(self.timeData, y, self.relativeFreq)
 

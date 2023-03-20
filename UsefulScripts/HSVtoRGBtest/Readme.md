@@ -1,0 +1,1 @@
+This script was useful to me in testing my integer-math only function to convert a color from the Hue/Saturation/Value color space to an RGB value. I didn't bother to clean this script up, so pardon the mess, but I included it anyway just for the sake of showing my work.

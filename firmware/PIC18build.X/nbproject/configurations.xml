@@ -23,15 +23,6 @@
             <itemPath>../HAL/PIC18F06Q41/HAL_sleep.c</itemPath>
             <itemPath>../HAL/PIC18F06Q41/HAL_sleepTimer.c</itemPath>
           </logicalFolder>
-          <logicalFolder name="PIC18F67K40" displayName="PIC18F67K40" projectFiles="true">
-            <itemPath>../HAL/PIC18F67K40/device_config.c</itemPath>
-            <itemPath>../HAL/PIC18F67K40/hal_ADC.c</itemPath>
-            <itemPath>../HAL/PIC18F67K40/hal_interrupts.c</itemPath>
-            <itemPath>../HAL/PIC18F67K40/hal_Systick.c</itemPath>
-            <itemPath>../HAL/PIC18F67K40/hal_Systick.h</itemPath>
-          </logicalFolder>
-          <logicalFolder name="Teensy" displayName="Teensy" projectFiles="true">
-          </logicalFolder>
           <itemPath>../HAL/HAL_ADC.h</itemPath>
           <itemPath>../HAL/HAL_globalIntMask.h</itemPath>
           <itemPath>../HAL/HAL_GPIO.h</itemPath>
@@ -48,7 +39,6 @@
           <itemPath>../HelperClasses/LinearRamp.c</itemPath>
           <itemPath>../HelperClasses/HSVtoRGB.c</itemPath>
           <itemPath>../HelperClasses/HSVtoRGB.h</itemPath>
-          <itemPath>../HelperClasses/Int24AccumMath.h</itemPath>
           <itemPath>../HelperClasses/AmpScalingMath.c</itemPath>
           <itemPath>../HelperClasses/AmpScalingMath.h</itemPath>
           <itemPath>../HelperClasses/RNG.c</itemPath>
