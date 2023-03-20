@@ -9,7 +9,6 @@ void main(void)
     HAL_initPins();
     SigSamp_init();
     LEDMgr_init();
-    Sleep_init();
     
     while (1)
     {
