@@ -5,6 +5,8 @@
 
 void main(void)
 {
+    tune();
+    
     /* Initialize all modules */
     HAL_initPins();
     SigSamp_init();

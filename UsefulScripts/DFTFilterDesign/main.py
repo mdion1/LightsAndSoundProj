@@ -29,12 +29,12 @@ def main():
 
     # create list of input frequencies to test
     CHROM_STEP = math.pow(2, 1/12)
-    NUM_CHROM_STEPS = 8     # Number of chromatic steps in either direction
+    NUM_CHROM_STEPS = 1     # Number of chromatic steps in either direction
     SWEEP_RES = 160          # Number of points on the graph
 
     chromStepList = np.append(
-        np.linspace(-NUM_CHROM_STEPS, 0, SWEEP_RES / 2),
-        np.linspace(0, NUM_CHROM_STEPS, SWEEP_RES / 2) )
+        np.linspace(-NUM_CHROM_STEPS, 0, int(SWEEP_RES / 2)),
+        np.linspace(0, NUM_CHROM_STEPS, int(SWEEP_RES / 2)) )
     freqList = np.power(CHROM_STEP, chromStepList) * TARGET_FREQ
     gain: List[float] = []
 

@@ -14,5 +14,15 @@
             ],
             "console": "integratedTerminal"
         },
+        {
+            "name": "Tuning design",
+            "type": "python",
+            "request": "launch",
+            "program": "TuningDesign.py",
+            "args":[
+            
+            ],
+            "console": "integratedTerminal"
+        },
     ]
 }
