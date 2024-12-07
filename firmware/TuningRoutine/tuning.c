@@ -13,6 +13,7 @@
  * A 100 Hz refenr
  */
 #define TMR_EXPECTED 10000
+#define TUN_VAL_LOC 0   // EEPROM offset address for tuning value
 
 // Private function declarations
 static void setup(void);
@@ -22,6 +23,9 @@ static void tuningRoutine(void);
 // Public function definitions
 
 void tune(void) {
+    // Load tuning value from NVM
+    OscTune_setTun((int8_t)EEPROM_read(TUN_VAL_LOC));
+
     setup();
 
     while (checkTuningMode()) {
@@ -29,6 +33,11 @@ void tune(void) {
     }
 
     tearDown();
+
+    // Write tuning value to NVM
+    if ((int8_t)EEPROM_read(TUN_VAL_LOC) != OscTune_getTun()) {
+        EEPROM_write(TUN_VAL_LOC, OscTune_getTun());
+    }
 }
 
 // Private function definitions
@@ -88,13 +97,13 @@ static void tearDown(void) {
 
 static void tuningRoutine(void) {
     // Wait for gate to go inactive before starting the timer and arming the single pulse trigger
-    while(GatedTmr_isGateActive()) {}
+    while(GatedTmr_isGateActive());
     GatedTmr_clrSinglePulseDoneFlag();
     GatedTmr_clrTimerVal();
     GatedTmr_en(true);
 
     // Wait for the single pulse to complete
-    while (!GatedTmr_isSinglePulseDone()) {}
+    while (!GatedTmr_isSinglePulseDone());
     
     // Disable the timer, read the captured value
     GatedTmr_en(false);

@@ -7,20 +7,32 @@
  * When a value between 0x3F and 0x20 is written to the TUN bits, the HFINTOSC frequency is decreased."
  */
 
-static int8_t tune = 0;
+static int8_t tune = 0;     // TODO delete this static var and read TUN, with the 6-bit truncation
 
 void OscTune_incrFreq(void) {
-    tune++;
-    if (tune > 31) {
-        tune = 31;
-    }
-    OSCTUNEbits.TUN = tune; // truncates to 6 bits
+    OscTune_setTun(OscTune_getTun() + 1);
 }
 
 void OscTune_decrFreq(void) {
-    tune--;
+    OscTune_setTun(OscTune_getTun() - 1);
+}
+
+int8_t OscTune_getTun(void) {
+    int8_t tune = OSCTUNEbits.TUN;
+
+    // convert from signed 6-bit to signed 8-bit
+    if (tune > 31) {
+        tune = tune - 64;
+    }
+    return tune;
+}
+
+void OscTune_setTun(int8_t tune) {
+    if (tune > 31) {
+        tune = 31;
+    }
     if (tune < -32) {
         tune = -32;
     }
-    OSCTUNEbits.TUN = tune; // truncates to 6 bits
+    OSCTUNEbits.TUN = val; // truncates to 6 bits
 }
