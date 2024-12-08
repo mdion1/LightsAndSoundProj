@@ -56,7 +56,7 @@ Current project state = jenky, but works. I have tested using a prototype board 
 - Tweak the hard-coded sensitivity level for each of the audio frequencies
 - Use the watchdog timer during sleep mode instead of the peripheral timer, in order to reduce standby power to 1.5uA.
 - Order, assemble, and test the next board revision based on changes I've hacked onto the prototype
-- Order, assembly, the batch programming PCB, and design an enclosure/jig to go with it.
+- Order, assemble, the batch programming PCB, and design an enclosure/jig to go with it.
 - Source a cheaper microcontroller, now that I know how much RAM and flash I need.
 - Source a cheaper microphone, possibly a MEM's with lower quiescent power consumption. For this I will probably have to go outside of Digikey and Mouser, as the availability of low cost microphones is limited.
 - Source an LED diffuser. The light is a harsh point source, and I may want to offer diffusers built into the design.

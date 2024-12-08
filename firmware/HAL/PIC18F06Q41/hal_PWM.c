@@ -1,5 +1,6 @@
 #ifdef __PIC18F06Q41__
 #include "HAL/HAL_PWM.h"
+#include "HAL/HAL_PMD.h"
 #include <xc.h>
 
 /** PWM allocation
@@ -30,8 +31,7 @@ void HAL_PWMEnable(bool en)
 {
     if (en)
     {
-        PMD3 &= 0b11111000;     // Clear Peripheral Module Disable bits
-        
+        HAL_PMD_enPWM(true);   // Clear Peripheral Module Disable bits
         PWMEN = 0b011;          // Enable PWM1 and PWM2
         
         /* Set clock source and period */
@@ -48,7 +48,7 @@ void HAL_PWMEnable(bool en)
     else
     {
         PWMEN = 0;              // Disable PWM1 and PWM2
-        PMD3 |= 0b00000111;     // Set Peripheral Module Disable bits
+        HAL_PMD_enPWM(false);   // Set Peripheral Module Disable bits
         
         // Set GPIO's back to digital outputs set to 0
         RC0PPS = 0;     // Red channel

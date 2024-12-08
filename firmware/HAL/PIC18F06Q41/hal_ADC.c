@@ -1,6 +1,7 @@
 #ifdef __PIC18F06Q41__
 #include <xc.h>
 #include "HAL/HAL_ADC.h"
+#include "HAL/HAL_PMD.h"
 
 /* For positive channel selection register ADPCH */
 #define ADCINPUTCHAN 0b101          // selects port/pin RA5
@@ -39,14 +40,13 @@ int16_t HAL_ADCGetConv(void)
 
 void HAL_ADCEnable(void)
 {
-    
     /*  Configure input pin as an analog input */
     TRISA |= (1 << 5);
     ANSELA |= (1 << 5);
 
-    /* Configure ADC and Timer2 registers */
-    PMD2 &= ~(1 << 1);      // Clear ADC peripheral module disable bit
-    PMD1 &= ~(1 << 2);      // Clear TMR2 peripheral module disable bit
+    /* Clear "peripheral module disable" bits */
+    HAL_PMD_enADC(true);
+    HAL_PMD_enTMR(true, 2);
     
     /* Init ADC module */
     ADCON0bits.ON = 1;      // Enable module
@@ -69,12 +69,12 @@ void HAL_ADCEnable(void)
 
 void HAL_ADCDisable(void)
 {
-    /* Disable Timer2 trigger source, set PMD bits */
+    /* Disable Timer2 trigger source, set PMD bits to decrease power consumption */
     T2CONbits.ON = 0;
-    PMD1 |= (1 << 2);   // Set Timer2 Peripheral Module Disable bit
-    PMD2 |= (1 << 1);     // Set ADC Peripheral Module Disable bit
+    HAL_PMD_enADC(false);
+    HAL_PMD_enTMR(false, 2);
     
-    // Set input pin to digital output, clamp to Vdd
+    // Set input pin to digital output, clamp to Vdd    TODO move to HAL_GPIO
     TRISA &= ~(1 << 5);
     ANSELA &= ~(1 << 5);
     TRISA |= (1 << 5);      // set pin high

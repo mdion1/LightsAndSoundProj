@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include "HAL_gatedTmr.h"
 #include "HAL_Osctune.h"
+#include "HAL_EEPROM.h"
+#include "HAL_tuningPins.h"
 
 // Private variable declarations
 
@@ -28,7 +30,7 @@ void tune(void) {
 
     setup();
 
-    while (checkTuningMode()) {
+    while (Pins_getTriggerState()) {
         tuningRoutine();
     }
 
@@ -36,41 +38,21 @@ void tune(void) {
 
     // Write tuning value to NVM
     if ((int8_t)EEPROM_read(TUN_VAL_LOC) != OscTune_getTun()) {
-        EEPROM_write(TUN_VAL_LOC, OscTune_getTun());
+        EEPROM_write(TUN_VAL_LOC, (uint8_t)OscTune_getTun());
     }
 }
 
 // Private function definitions
 
-static bool checkTuningMode(void) {
-#ifndef NDEBUG
-    /* For debug mode, GPIO's RA0 and RA1 are used as ICSP_DAT and ICSP_CLK pins and are unavailable.
-     * Return a constant value based on debugging needs.
-     */
-    return true;
-    // return false;
-#else
-
-    // Return state of RA0 pin. Low = active.
-    return (PORTAbits.RA0 == 0);
-#endif
-}
-
 static void setup(void) {
-    // Set up "Tuning mode" trigger pin with internal pullup
-#ifndef NDEBUG
-    // No "Tuning mode" trigger pin available in debug mode
+    Pins_setupTuningMode();
 
+#ifndef NDEBUG
     // Set up RA5 as the timer gate input
     GatedTmr_setGateSrc(TIMER_GATE_SRC_GPIO, TIMER_GATE_PPS_PORTA, 5);
 #else
-    // Set up RA0 as an input with internal pullup
-    TRISAbits.TRISA0 = 1;
-    WPUAbits.WPUA0 = 1;
-
     // Set up RA1 as the timer gate input
     GatedTmr_setGateSrc(TIMER_GATE_SRC_GPIO, TIMER_GATE_PPS_PORTA, 1);
-
 #endif
 
     // Set up gated timer + interrupt
@@ -86,22 +68,19 @@ static void setup(void) {
 
 static void tearDown(void) {
     GatedTmr_clrConfig();
-
-    // TODO reset pin configuration
-
-    // Set up RA0 to output low     TODO put in hal pins file
-    LATAbits.LATA0 = 0;
-    WPUAbits.WPUA0 = 0;
-    TRISAbits.TRISA0 = 0;
+    Pins_tearDownTuningMode();
 }
 
 static void tuningRoutine(void) {
-    // Wait for gate to go inactive before starting the timer and arming the single pulse trigger
+    /* Make sure we're not right near the end of a pulse by waiting for the gate to go inactive,
+     * then active, then inactive again. Then start the timer and arm the single pulse trigger.
+     */
+    while(!GatedTmr_isGateActive());
     while(GatedTmr_isGateActive());
     GatedTmr_clrSinglePulseDoneFlag();
     GatedTmr_clrTimerVal();
     GatedTmr_en(true);
-
+    
     // Wait for the single pulse to complete
     while (!GatedTmr_isSinglePulseDone());
     

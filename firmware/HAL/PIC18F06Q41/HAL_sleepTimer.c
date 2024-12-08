@@ -1,5 +1,6 @@
 #ifdef __PIC18F06Q41__
 #include "HAL/HAL_sleepTimer.h"
+#include "HAL/HAL_PMD.h"
 #include <xc.h>
 
 #define TMR0_CLOCK_DIV_1024 10
@@ -62,13 +63,13 @@ void HAL_SleepTimerEnable(bool en)
 {
     /* Set/clear Timer0's peripheral module disable bit */
     if (en) {
-        PMD1 &= ~(0x01);
+        HAL_PMD_enTMR(true, 0);
         T0CON1bits.CS = 0b100;  // Clock source = 31kHz LFINTOSC
         T0CON1bits.ASYNC = 1;   // Enable asynchronous mode, so timer can operate during sleep
     }
     else {
         T0CON0bits.EN = 0;  // Stop timer
-        PMD1 |= 1;
+        HAL_PMD_enTMR(false, 0);
     }
     
     /* Clear Timer0's interrupt flag and set/clear enable bit */

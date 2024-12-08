@@ -1,22 +1,3 @@
-/*
-
-
-Timer1 has gated mode (also timer3)
-
-GPOL + TxG bits
-he gate source for Timer1 is selected using the GSS bits. 
-he polarity selection for the gate source is controlled by
-the GPOL bit.
-
-Gate sources:
-TxGATE = 0; --> Pin selected by T1GPPS register
-
-Can use "gate toggle mode" to get a full period instead of just high or low pulse
-GTM bit
-
-interrupt: use TMRxGIF and TMRxGIE 
-*/
-
 #include "HAL_gatedTmr.h"
 #include <xc.h>
 
